@@ -20,7 +20,7 @@ def send_welcome(message):
         trafficController.finished_process(message.chat.id,'start')
 
 @bot.message_handler(commands=['fcode'])
-def send_welcome(message):
+def COMM_fcode(message):
     check = trafficController.check_spam(message.chat.id, 'fcode')
     if check == "OK":
         response = users.get_DINING_forgotten_code(message.chat.id)
@@ -29,7 +29,7 @@ def send_welcome(message):
         trafficController.finished_process(message.chat.id,'fcode')
 
 @bot.message_handler(commands=['nextweek'])
-def send_welcome(message):
+def COMM_nextweek(message):
     check = trafficController.check_spam(message.chat.id, 'nextweek')
     if check == "OK":
         response = users.extract_DINING_next_weeks_data(message.chat.id)
@@ -38,7 +38,7 @@ def send_welcome(message):
         trafficController.finished_process(message.chat.id,'nextweek')
 
 @bot.message_handler(commands=['thisweek'])
-def send_welcome(message):
+def COMM_thisweek(message):
     check = trafficController.check_spam(message.chat.id, 'thisweek')
     if check == "OK":
         response = users.extract_DINING_data(message.chat.id)
@@ -47,21 +47,27 @@ def send_welcome(message):
         trafficController.finished_process(message.chat.id,'thisweek')
 
 @bot.message_handler(commands=['ordermeal'])
-def send_welcome(message):
+def COMM_ordermeal(message):
     check = trafficController.check_spam(message.chat.id, 'ordermeal')
     if check == "OK":
         users.order_meal_next_week(message.chat.id)
         trafficController.finished_process(message.chat.id, 'ordermeal')
 
+@bot.message_handler(commands=['feedback'])
+def COMM_feedback(message):
+    bot.send_message(message.chat.id,MSGs.give_your_feedback)
+    users.wait_for_feedback(message.chat.id)
+
+
 @bot.message_handler(content_types=['text'])
-def send_welcome(message):
-    response = users.process_user_MSG(message.chat.id,message.text)
+def text_MSG(message):
+    response = users.process_user_MSG(message.chat.id,message.text,message)
     if response is not None:
         bot.send_message(message.chat.id,response)
 
 
 @bot.callback_query_handler(func=lambda call: True)
-def  test_callback(call):
+def test_callback(call):
     if users.know_user(call.from_user.id) == False:
         return
 

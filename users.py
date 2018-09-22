@@ -3,7 +3,7 @@
 
 import MSGs,scriptCaller
 import trafficController
-from inits import bot
+from inits import bot,feedBack_target_chat
 from emoji import emojize
 import dataBase
 from telebot import types
@@ -35,7 +35,7 @@ def know_user(userID):
         Error_Handle.log_error("ERROR: users.know_user")
         return False
 
-def process_user_MSG(userID, message_TXT):
+def process_user_MSG(userID, message_TXT,message):
     try:
         if(users_book[userID]["state"] == "GetUser"):
             users_book[userID]["user"] = message_TXT
@@ -49,6 +49,11 @@ def process_user_MSG(userID, message_TXT):
                 tmp_MSG = extract_DINING_data(userID)
                 trafficController.finished_process(userID, "SCRIPT")
                 return tmp_MSG
+        elif(users_book[userID]["state"] == "FeedBack"):
+            bot.forward_message(feedBack_target_chat,userID,message.message_id)
+            bot.send_message(userID,MSGs.feedBack_sent)
+            users_book[userID]["state"] = None
+            return
         else:
             pass
     except:
@@ -383,7 +388,13 @@ def order_meal_next_week(userID):
         return
 
 
-
+def wait_for_feedback(userID):
+    try:
+        users_book[userID]["state"] = "FeedBack"
+    except:
+        bot.send_message(userID, MSGs.we_cant_do_it_now)
+        Error_Handle.log_error("ERROR: users.wait_for_feedback")
+        return
 
 
 
