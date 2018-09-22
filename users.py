@@ -25,6 +25,15 @@ def add_user(userID):
         Error_Handle.log_error("ERROR: users.add_user")
         return
 
+def know_user(userID):
+    try:
+        if (userID not in users_book.keys()):
+            return False
+        return True
+    except:
+        Error_Handle.log_error("ERROR: users.know_user")
+        return False
+
 def process_user_MSG(userID, message_TXT):
     try:
         if(users_book[userID]["state"] == "GetUser"):
