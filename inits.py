@@ -4,6 +4,8 @@
 
 import telebot
 
-tel_token = "<###THE BOTS TOKEN###>" #The bots token which was received from BotFather
+tel_token = "<###THE BOTS TOKEN###>" #TEST token
+
+feedBack_target_chat = <---CHAT_ID---> #The chat where all the FeedBacks will be forwarded, Make sure the bot has access to this chat
 
 bot = telebot.TeleBot(tel_token)

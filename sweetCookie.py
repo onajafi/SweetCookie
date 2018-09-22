@@ -8,7 +8,6 @@ import dataBase
 import trafficController
 import threading, datetime
 
-#TODO add an option to get feedbacks
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
