@@ -73,7 +73,7 @@ casper.then(function() {
     this.evaluate(function() {
         var form = document.querySelector('select#foodforgottencodesform-self_id');
         form.selectedIndex = 19;
-        $(form).val(19).change(); //TODO do something about the values
+        $(form).val(19).change(); //TODO do something about the values (#19 is just for the boys section)
     });
   })
   .then(function(){

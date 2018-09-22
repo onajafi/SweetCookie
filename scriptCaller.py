@@ -74,8 +74,8 @@ def get_user_next_week_DINING_data(username,password,chat_id):
     with open('tmp/' + data_output_file_name) as f:
         data = json.load(f)
 
-    # os.remove('tmp/' + data_output_file_name)
-    # os.remove('tmp/' + input_file_name)
+    os.remove('tmp/' + data_output_file_name)
+    os.remove('tmp/' + input_file_name)
     return data
 
 def get_user_DINING_forgotten_code(username,password,chat_id):

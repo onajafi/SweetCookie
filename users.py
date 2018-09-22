@@ -124,7 +124,9 @@ def extract_DINING_data(userID):
             dataBase.update_UserPass(userID, users_book[userID]["user"], users_book[userID]["pass"])
 
         message_TXT = ""
-        message_TXT += "موجودی: \n" + str(temp_data["Balance"])
+        message_TXT += "موجودی: \n" + str(temp_data["Balance"]) + '\n'
+        if (float(temp_data["Balance"]) < -10):
+            message_TXT += emojize("❗اعتبارت کمه، یکم بیشترش کن❗️")
         bot.send_message(userID,message_TXT)
 
         message_TXT = ""
@@ -214,7 +216,9 @@ def extract_DINING_next_weeks_data(userID):
             return MSGs.your_password_is_wrong
 
         message_TXT = ""
-        message_TXT += "موجودی: \n" + str(temp_data["Balance"])
+        message_TXT += "موجودی: \n" + str(temp_data["Balance"]) + '\n'
+        if(float(temp_data["Balance"]) < -10):
+            message_TXT += emojize("❗اعتبارت کمه، یکم بیشترش کن❗️")
         bot.send_message(userID, message_TXT)
 
         message_TXT = ""
@@ -246,7 +250,6 @@ def extract_DINING_next_weeks_data(userID):
         Error_Handle.log_error("ERROR: users.extract_DINING_next_weeks_data")
         return
 
-#TODO add the option where the credit value reaches the limit
 def submit_next_weeks_DINING_order(userID):
     try:
         # first check if there is anything to submit:
@@ -301,7 +304,7 @@ def ask_to_choose_meal(userID):
                 users_book[userID]["state"] = users_book[userID]["state"] + 1
                 continue
 
-        if(users_book[userID]["state"] == 7):# TODO process the request here
+        if(users_book[userID]["state"] == 7):# process the request here
             users_book[userID]["state"] = None
             bot.send_message(userID, "در حال ثبت درخواست...")
             # processing the request:
@@ -336,6 +339,16 @@ def order_meal_next_week(userID):
 
         if (temp_data["PASSWORD_STATE"] == "WRONG"):
             return MSGs.your_password_is_wrong
+
+        if(float(temp_data["Balance"]) < -15):
+            tmp_MSG = "حاجییییییی(یا خانم محترم)، اوضاع اعتبار حسابت خیلی خرابه:"
+            tmp_MSG += '\n'
+            tmp_MSG += "میزان اعتبار:"
+            tmp_MSG += '\n'
+            tmp_MSG += str(temp_data["Balance"])
+            bot.send_message(userID,tmp_MSG)
+            tmp_MSG = "ممکن هست در فرآیند سفارش بعضی از وعده‌ها گرفته نشه."
+            bot.send_message(userID, tmp_MSG)
 
         user_meal_menu[userID] = temp_data["Table"]
         users_book[userID]["state"] = 0
