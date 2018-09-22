@@ -88,11 +88,14 @@ def TUESDAY_ALARM():
     global RUN_THREAD
     while(RUN_THREAD):
         try:
-            now = datetime.datetime.today()
-            ALARM_TIME = now + datetime.timedelta((3 - now.weekday()) % 7)
-            ALARM_TIME = ALARM_TIME.replace(hour=20, minute=45, second=00)
-            print (ALARM_TIME - now).seconds
-            time.sleep((ALARM_TIME - now).seconds)
+            now = datetime.datetime.utcnow() + datetime.timedelta(hours=3,minutes=30)
+            ALARM_TIME = now + datetime.timedelta(days = (1 - now.weekday()) % 7)
+            ALARM_TIME = ALARM_TIME.replace(year=ALARM_TIME.year,
+                                            month=ALARM_TIME.month,
+                                            day = ALARM_TIME.day,
+                                            hour=15, minute=00, second=00)
+            print (ALARM_TIME - now).total_seconds()
+            time.sleep((ALARM_TIME - now).total_seconds())
             # time.sleep(2)
             for tmpUserID in users.users_book.keys():
                 print "++=",tmpUserID
