@@ -1,0 +1,7 @@
+.idea/*
+*.pyc
+*.png
+test*
+
+
+/.project
