@@ -11,6 +11,9 @@ enter_userpass_markup.add(types.InlineKeyboardButton('ورود اطلاعات ک
 get_forgotten_code = types.InlineKeyboardMarkup(row_width=1)
 get_forgotten_code.add(types.InlineKeyboardButton('گرفتن کد فراموشی',callback_data='FCode'))
 
+reserve_time_markup = types.InlineKeyboardMarkup(row_width=1)
+reserve_time_markup.add(types.InlineKeyboardButton('رزرو هفته بعد',callback_data='OrderNextWeek'))
+
 greetings = """سلام،
 این بات برای سهولت رزرو از سایت dining.sharif.edu ساخته شده است.
 با وارد کردن اطلاعات کاربری، شما با <a href="http://www.example.com/">شرایط و قوانین</a> استفاده از این بات موافقت کرده‌اید."""
@@ -43,3 +46,7 @@ Stop_Spamming = "اسپم نکن..."
 cant_do_it_now = "سایت یه مشکلی داره، بعد از چند دقیقه دوباره امتحان کن"
 
 please_enter_your_UserPass = "قبل از هر کاری اطلاعات ورودت رو بده"
+
+its_reserve_time = "وقت رزرو شده..."
+
+

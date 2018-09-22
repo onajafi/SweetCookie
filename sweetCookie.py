@@ -9,7 +9,6 @@ import trafficController
 import threading, datetime
 
 #TODO add an option to get feedbacks
-#TODO add a thread to remind reservings on Tuesdays
 #TODO Fix the link for the Terms and Conditions
 
 @bot.message_handler(commands=['start'])
@@ -90,13 +89,15 @@ def TUESDAY_ALARM():
     while(RUN_THREAD):
         try:
             now = datetime.datetime.today()
-            ALARM_TIME = now + datetime.timedelta((7 - now.weekday()) % 7 + 1)
-            ALARM_TIME = ALARM_TIME.replace(minute=00, hour=15, second=00)
+            ALARM_TIME = now + datetime.timedelta((3 - now.weekday()) % 7)
+            ALARM_TIME = ALARM_TIME.replace(hour=20, minute=45, second=00)
             print (ALARM_TIME - now).seconds
             time.sleep((ALARM_TIME - now).seconds)
-            for elem in users.keys():
-                if(elem["user"] != None and elem["pass"] != None):#if there was some password to get in
-                    bot.send_message()
+            # time.sleep(2)
+            for tmpUserID in users.users_book.keys():
+                print "++=",tmpUserID
+                if(users.users_book[tmpUserID]["user"] != None and users.users_book[tmpUserID]["pass"] != None):#if there was some password to get in
+                    bot.send_message(tmpUserID,"وقت رزرو شده...",reply_markup = MSGs.reserve_time_markup)
         except:
             pass
 

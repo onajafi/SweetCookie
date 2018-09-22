@@ -9,7 +9,7 @@ import MSGs
 last_user_msg = {}
 
 long_process = {"fcode",'CALL','ordermeal','thisweek','nextweek','fcode',
-                'CALL_UserPass','CALL_FCode',"SCRIPT"}
+                'CALL_UserPass','CALL_FCode','CALL_OrderNextWeek',"SCRIPT"}
 short_process = {'start','text'}
 
 

@@ -66,6 +66,11 @@ def process_user_call(userID,call_TXT,ACT_call):
                 trafficController.finished_process(userID, "CALL_UserPass")
                 return MSGs.give_user
 
+        elif (call_TXT == "OrderNextWeek"):
+            check = trafficController.check_spam(userID, 'CALL_OrderNextWeek')
+            if check == "OK":
+                order_meal_next_week(userID)
+                trafficController.finished_process(userID, 'CALL_OrderNextWeek')
 
         elif(call_TXT == "FCode"):#Forgotten Code
             if(users_book[userID]["user"] != None and users_book[userID]["pass"] != None):
@@ -97,7 +102,6 @@ def process_user_call(userID,call_TXT,ACT_call):
             if check == "OK":
                 ask_to_choose_meal(userID)
                 trafficController.finished_process(userID, "SCRIPT")
-
     except:
         bot.send_message(userID, MSGs.we_cant_do_it_now)
         Error_Handle.log_error("ERROR: users.process_user_call")
