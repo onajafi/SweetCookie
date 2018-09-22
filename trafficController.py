@@ -8,7 +8,8 @@ import MSGs
 # Dictionary format-> userID:(type,time)
 last_user_msg = {}
 
-long_process = {"fcode",'CALL','ordermeal','thisweek','nextweek','fcode'}
+long_process = {"fcode",'CALL','ordermeal','thisweek','nextweek','fcode',
+                'CALL_UserPass','CALL_FCode',"SCRIPT"}
 short_process = {'start','text'}
 
 

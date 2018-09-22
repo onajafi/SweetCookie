@@ -6,6 +6,7 @@ import time, MSGs
 import users
 import dataBase
 import trafficController
+import threading, datetime
 
 #TODO add an option to get feedbacks
 #TODO add a thread to remind reservings on Tuesdays
@@ -56,36 +57,56 @@ def send_welcome(message):
 
 @bot.message_handler(content_types=['text'])
 def send_welcome(message):
-    check = trafficController.check_spam(message.chat.id, 'text')
-    if check == "OK":
-        response = users.process_user_MSG(message.chat.id,message.text)
-        if response is not None:
-            bot.send_message(message.chat.id,response)
-        trafficController.finished_process(message.chat.id, 'text')
+    response = users.process_user_MSG(message.chat.id,message.text)
+    if response is not None:
+        bot.send_message(message.chat.id,response)
+
 
 @bot.callback_query_handler(func=lambda call: True)
 def  test_callback(call):
     if users.know_user(call.from_user.id) == False:
         return
 
-    check = trafficController.check_spam(call.from_user.id, 'CALL')
-    if check == "OK":
-        print call
-        response = users.process_user_call(call.from_user.id,call.data,call)
-        if response is not None:
-            bot.send_message(call.from_user.id, response)
-        trafficController.finished_process(call.from_user.id, 'CALL')
+    print call
+    response = users.process_user_call(call.from_user.id,call.data,call)
+    if response is not None:
+        bot.send_message(call.from_user.id, response)
 
 
-while(True):
-    try:
-        bot.polling()
-    except:
-        pass
-    time.sleep(2)
+#Here are the threads:
+RUN_THREAD = True
+def MAIN_THR():
+    global RUN_THREAD
+    while(RUN_THREAD):
+        try:
+            bot.polling()
+        except:
+            pass
+        time.sleep(2)
+
+#Tuesday is Reserve day
+def TUESDAY_ALARM():
+    global RUN_THREAD
+    while(RUN_THREAD):
+        try:
+            now = datetime.datetime.today()
+            ALARM_TIME = now + datetime.timedelta((7 - now.weekday()) % 7 + 1)
+            ALARM_TIME = ALARM_TIME.replace(minute=00, hour=15, second=00)
+            print (ALARM_TIME - now).seconds
+            time.sleep((ALARM_TIME - now).seconds)
+            for elem in users.keys():
+                if(elem["user"] != None and elem["pass"] != None):#if there was some password to get in
+                    bot.send_message()
+        except:
+            pass
 
 
+main_thread = threading.Thread(target = MAIN_THR)
+alarm_thread = threading.Thread(target = TUESDAY_ALARM)
 
+main_thread.start()
+alarm_thread.start()
 
-
+main_thread.join()
+alarm_thread.join()
 

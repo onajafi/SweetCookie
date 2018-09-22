@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import MSGs,scriptCaller
+import trafficController
 from inits import bot
 from emoji import emojize
 import dataBase
@@ -41,9 +42,13 @@ def process_user_MSG(userID, message_TXT):
             users_book[userID]["state"] = "GetPass"
             return MSGs.give_pass
         elif(users_book[userID]["state"] == "GetPass"):
-            users_book[userID]["pass"] = message_TXT
-            users_book[userID]["state"] = None
-            return extract_DINING_data(userID)
+            check = trafficController.check_spam(userID, "SCRIPT")
+            if check == "OK":
+                users_book[userID]["pass"] = message_TXT
+                users_book[userID]["state"] = None
+                tmp_MSG = extract_DINING_data(userID)
+                trafficController.finished_process(userID, "SCRIPT")
+                return tmp_MSG
         else:
             pass
     except:
@@ -54,14 +59,23 @@ def process_user_MSG(userID, message_TXT):
 def process_user_call(userID,call_TXT,ACT_call):
     try:
         if (call_TXT == "UserPass"):
-            users_book[userID]["state"] = "GetUser"
-            dataBase.update_UserPass(userID,None,None)
-            return MSGs.give_user
+            check = trafficController.check_spam(userID, "CALL_UserPass")
+            if check == "OK":
+                users_book[userID]["state"] = "GetUser"
+                dataBase.update_UserPass(userID,None,None)
+                trafficController.finished_process(userID, "CALL_UserPass")
+                return MSGs.give_user
+
+
         elif(call_TXT == "FCode"):#Forgotten Code
             if(users_book[userID]["user"] != None and users_book[userID]["pass"] != None):
-                return scriptCaller.get_user_DINING_forgotten_code(users_book[userID]["user"],
+                check = trafficController.check_spam(userID, "CALL_FCode")
+                if check == "OK":
+                    tmp_MSG = scriptCaller.get_user_DINING_forgotten_code(users_book[userID]["user"],
                                                                    users_book[userID]["pass"],
                                                                    userID)
+                    trafficController.finished_process(userID, "CALL_FCode")
+                    return tmp_MSG
             else:
                 bot.send_message(userID,MSGs.please_enter_your_UserPass,reply_markup=MSGs.enter_userpass_markup)
                 return
@@ -78,7 +92,12 @@ def process_user_call(userID,call_TXT,ACT_call):
                                   message_id = ACT_call.message.message_id,
                                   reply_markup = None)
             user_order_list[userID][users_book[userID]["state"] - 1] = call_TXT
-            ask_to_choose_meal(userID)
+
+            check = trafficController.check_spam(userID, "SCRIPT")
+            if check == "OK":
+                ask_to_choose_meal(userID)
+                trafficController.finished_process(userID, "SCRIPT")
+
     except:
         bot.send_message(userID, MSGs.we_cant_do_it_now)
         Error_Handle.log_error("ERROR: users.process_user_call")
