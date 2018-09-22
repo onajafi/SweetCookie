@@ -16,7 +16,7 @@ reserve_time_markup.add(types.InlineKeyboardButton('رزرو هفته بعد',ca
 
 greetings = """سلام،
 این بات برای سهولت رزرو از سایت dining.sharif.edu ساخته شده است.
-با وارد کردن اطلاعات کاربری، شما با <a href="http://www.example.com/">شرایط و قوانین</a> استفاده از این بات موافقت کرده‌اید."""
+با وارد کردن اطلاعات کاربری، شما با <a href="https://github.com/onajafi/SweetCookie/blob/Develop/termsAndConditions/temsAndCons.md/">شرایط و قوانین</a> استفاده از این بات موافقت کرده‌اید."""
 
 give_user = "نام کاربری را وارد کنید" \
             "(نام کاربری پیش‌فرض شماره دانشجویی می‌باشد):"

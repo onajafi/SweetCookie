@@ -9,7 +9,6 @@ import trafficController
 import threading, datetime
 
 #TODO add an option to get feedbacks
-#TODO Fix the link for the Terms and Conditions
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
