@@ -8,6 +8,7 @@ import dataBase
 import trafficController
 import threading, datetime
 
+#TODO add a howtouse command
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
