@@ -235,7 +235,7 @@ def extract_DINING_next_weeks_data(userID):
             temp_data = scriptCaller.get_user_next_week_DINING_data(users_book[userID]["user"],
                                                           users_book[userID]["pass"],
                                                           userID)
-            print temp_data
+            print str(temp_data)
             if (temp_data["ENTRY_STATE"] == "BAD"):
                 bot.send_message(userID, MSGs.trying_again)
                 attempts = attempts + 1
