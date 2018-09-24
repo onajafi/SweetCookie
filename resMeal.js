@@ -105,6 +105,7 @@ casper.then(function() {
     //this.echo(this.getHTML('[class="table sharif-table table-bordered table-condensed"]'));
     this.echo("_________________________________________________");
     this.capture('navigation.png');
+    extract_json_file();
     // this.echo(this.getHTML(x("//body//form")));
     //this.echo(this.getHTML(x("//body//form//div[class='reserve-table']")));
   });
