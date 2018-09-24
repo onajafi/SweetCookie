@@ -83,21 +83,43 @@ casper.then(function() {
     //this.echo(this.getHTML('span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip:nth-of-type('+'1'+')'));
     var order_list = parsed_input_JSON["order_list"];
     this.echo(Object.keys(order_list))
-    for(key in Object.keys(order_list)) {
+
+    ref = this;
+    Object.keys(order_list).forEach(function(key) {
+        ref.echo("IN_LOOP:")
+        ref.echo(key)
         if(order_list[key] == "nevermind"){
-            continue;
+            return;
         }
         var cart_button_selector = 'tr:nth-child(' + (Number(key) + 1)
             + ') > td.text-right > div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + (Number(order_list[key]) + 1)
             + ') > span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip';
 
-        if(this.exists(cart_button_selector)) {
-            this.thenClick(cart_button_selector);
-            this.echo("FOUND: " + key + " - " + order_list[key])
+        if(ref.exists(cart_button_selector)) {
+            ref.thenClick(cart_button_selector);
+            ref.echo("FOUND: " + key + " - " + order_list[key])
         }else{
-            this.echo("Didn't find the button: " + key + " - " + order_list[key])
+            ref.echo("Didn't find the button: " + key + " - " + order_list[key])
         }
-    }
+    });
+
+    // for(var key in Object.keys(order_list)) {
+    //     this.echo("IN_LOOP:")
+    //     this.echo(key)
+    //     if(order_list[key] == "nevermind"){
+    //         continue;
+    //     }
+    //     var cart_button_selector = 'tr:nth-child(' + (Number(key) + 1)
+    //         + ') > td.text-right > div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + (Number(order_list[key]) + 1)
+    //         + ') > span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip';
+    //
+    //     if(this.exists(cart_button_selector)) {
+    //         this.thenClick(cart_button_selector);
+    //         this.echo("FOUND: " + key + " - " + order_list[key])
+    //     }else{
+    //         this.echo("Didn't find the button: " + key + " - " + order_list[key])
+    //     }
+    // }
   })
   .then(function(){
     // scrape something else

@@ -13,15 +13,11 @@ If you con't have nodeJS installed, take a look at this link:
 
 https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions
 
-After installing NodeJS, You'll also need to install npm:
-
-```apt-get install npm```
-
 ### PhantomJS & CasperJS
 
 Checkout this link for setup instructions:
 
-https://gist.github.com/julionc/7476620
+https://gist.github.com/andrewslince/4e5f9aba78e175d8fab1
 
 ### Telegram API python library
 
@@ -30,6 +26,10 @@ https://gist.github.com/julionc/7476620
 ```pip2 install pyTelegramBotAPI```
 
 if you don't have pip installed, checkout [this link](https://linuxize.com/post/how-to-install-pip-on-ubuntu-18.04/#installing-pip-for-python-2).
+
+### python emoji library
+
+```pip2 install emoji```
 
 ### Clone the repo and initialize the script
 Issue this command to get the script:
@@ -45,10 +45,18 @@ set the ```feedBack_target_chat``` variable a chat ID you like the feedbacks to 
  otherwise, just write 0.
 
 Now you can run the script:
-```python sweetcookie.py```
+
+    cd SweetCookie/
+    python sweetcookie.py
 
 Run the code on the back ground so it will keep running on the server while your logged off:
-```python sweetcookie.py &```
+
+    python sweetcookie.py &
+
+
+
+
+
 
 
 
