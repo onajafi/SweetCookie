@@ -63,6 +63,7 @@ def process_user_MSG(userID, message_TXT,message):
 
 def process_user_call(userID,call_TXT,ACT_call):
     try:
+        print "STEP->1"
         if (call_TXT == "UserPass"):
             check = trafficController.check_spam(userID, "CALL_UserPass")
             if check == "OK":
@@ -91,7 +92,7 @@ def process_user_call(userID,call_TXT,ACT_call):
                 return
         elif(users_book[userID]["state"] in (1,2,3,4,5,6,7) and
                      call_TXT in ("0","1","2","3","nevermind")):
-
+            print "STEP->2"
             if(call_TXT == "nevermind"):
                 appending_ans = "چیزی نمی‌خوام"
             else:
@@ -108,6 +109,7 @@ def process_user_call(userID,call_TXT,ACT_call):
                 ask_to_choose_meal(userID)
                 trafficController.finished_process(userID, "SCRIPT")
         else:
+            print "STEP->3"
             bot.send_message(userID, "Don't know what you sent!?!?!?\n" + str(users_book[userID]["state"]) + '\n' + call_TXT)
             pass
     except:

@@ -71,8 +71,9 @@ def test_callback(call):
     if users.know_user(call.from_user.id) == False:
         return
 
-    print call
+    print "We have a call..."
     response = users.process_user_call(call.from_user.id,call.data,call)
+    print "response: " + str(response)
     if response is not None:
         bot.send_message(call.from_user.id, response)
 
