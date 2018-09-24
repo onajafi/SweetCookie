@@ -107,6 +107,9 @@ def process_user_call(userID,call_TXT,ACT_call):
             if check == "OK":
                 ask_to_choose_meal(userID)
                 trafficController.finished_process(userID, "SCRIPT")
+        else:
+            bot.send_message(userID, "Don't know what you sent!?!?!?\n" + str(users_book[userID]["state"]) + '\n' + call_TXT)
+            pass
     except:
         bot.send_message(userID, MSGs.we_cant_do_it_now)
         Error_Handle.log_error("ERROR: users.process_user_call")
@@ -284,7 +287,7 @@ def submit_next_weeks_DINING_order(userID):
         submit = False
         for elem in user_order_list[userID].values():
             if(elem != "nevermind"):
-                True
+                submit = True
                 break
 
         if(not submit):
