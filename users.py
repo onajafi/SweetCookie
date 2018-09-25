@@ -16,6 +16,7 @@ sys.setdefaultencoding('utf8')
 users_book = dataBase.get_users_book_from_database()
 user_meal_menu = {}
 user_order_list = {}
+tmp_resp_ID = -1
 
 def add_user(userID):
     try:
@@ -35,7 +36,13 @@ def know_user(userID):
         Error_Handle.log_error("ERROR: users.know_user")
         return False
 
+def process_respond(userID):
+    if(userID == feedBack_target_chat):
+        users_book[userID]["state"] = "respond_waiting_for_ID"
+        bot.send_message(userID,"Give the target chat ID:")
+
 def process_user_MSG(userID, message_TXT,message):
+    global tmp_resp_ID
     try:
         if(users_book[userID]["state"] == "GetUser"):
             users_book[userID]["user"] = message_TXT
@@ -51,14 +58,24 @@ def process_user_MSG(userID, message_TXT,message):
                 return tmp_MSG
         elif(users_book[userID]["state"] == "FeedBack"):
             bot.forward_message(feedBack_target_chat,userID,message.message_id)
+            bot.send_message(feedBack_target_chat,"The users ID is: " + '\n' + str(userID))
             bot.send_message(userID,MSGs.feedBack_sent)
             users_book[userID]["state"] = None
             return
+        elif(userID == feedBack_target_chat and users_book[userID]["state"] == "respond_waiting_for_ID"):
+            tmp_resp_ID = int(message_TXT)
+            bot.send_message(feedBack_target_chat,"Leave your message:")
+            users_book[userID]["state"] = "respond_waiting_for_MSG"
+        elif(userID == feedBack_target_chat and users_book[userID]["state"] == "respond_waiting_for_MSG"):
+            bot.send_message(tmp_resp_ID,message_TXT)
+            bot.send_message(feedBack_target_chat, "Sent :)")
+            users_book[userID]["state"] = None
         else:
             pass
     except:
         bot.send_message(userID, MSGs.we_cant_do_it_now)
         Error_Handle.log_error("ERROR: users.process_user_MSG")
+        users_book[userID]["state"] == None
         return
 
 def process_user_call(userID,call_TXT,ACT_call):

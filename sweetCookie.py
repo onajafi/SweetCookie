@@ -58,6 +58,10 @@ def COMM_feedback(message):
     bot.send_message(message.chat.id,MSGs.give_your_feedback)
     users.wait_for_feedback(message.chat.id)
 
+# This command is for the admin:
+@bot.message_handler(commands=['respond'])
+def COMM_respond(message):
+    users.process_respond(message.chat.id)
 
 @bot.message_handler(content_types=['text'])
 def text_MSG(message):
