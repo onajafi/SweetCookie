@@ -9,7 +9,7 @@ If you want to setup the bot on your own server follow these instructions.
 
 This script was tested on Ubuntu 18.04
 ### NodeJS
-If you con't have nodeJS installed, take a look at this link:
+If you don't have nodeJS installed, take a look at this link:
 
 https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions
 

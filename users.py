@@ -14,6 +14,7 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 users_book = dataBase.get_users_book_from_database()
+users_PLCs = dataBase.get_users_PLCs_from_database()
 user_meal_menu = {}
 user_order_list = {}
 tmp_resp_ID = -1
@@ -174,7 +175,7 @@ def extract_DINING_data(userID):
             dataBase.update_UserPass(userID, users_book[userID]["user"], users_book[userID]["pass"])
 
         message_TXT = ""
-        message_TXT += "موجودی: \n" + str(temp_data["Balance"]) + '\n'
+        message_TXT += "موجودی: \n" + str('%.3f' % temp_data["Balance"]) + '\n'
         if (float(temp_data["Balance"]) < -10):
             message_TXT += emojize("❗اعتبارت کمه، یکم بیشترش کن❗️")
         bot.send_message(userID,message_TXT)
@@ -266,7 +267,7 @@ def extract_DINING_next_weeks_data(userID):
             return MSGs.your_password_is_wrong
 
         message_TXT = ""
-        message_TXT += "موجودی: \n" + str(temp_data["Balance"]) + '\n'
+        message_TXT += "موجودی: \n" + str('%.3f' % temp_data["Balance"]) + '\n'
         if(float(temp_data["Balance"]) < -10):
             message_TXT += emojize("❗اعتبارت کمه، یکم بیشترش کن❗️")
         bot.send_message(userID, message_TXT)
@@ -322,6 +323,42 @@ def submit_next_weeks_DINING_order(userID):
     except:
         bot.send_message(userID, MSGs.we_cant_do_it_now)
         Error_Handle.log_error("ERROR: users.submit_next_weeks_DINING_order")
+        return
+
+def extract_DINING_places(userID):
+    try:
+        attempts = 1
+        while attempts <= 3:
+            bot.send_message(userID, MSGs.trying_to_get_places)
+            temp_data = scriptCaller.get_places_to_reserve_DINING(users_book[userID]["user"],
+                                                          users_book[userID]["pass"],
+                                                          userID)
+            print temp_data
+            if(temp_data == None):
+                bot.send_message(userID,MSGs.we_cant_do_it_now)
+                return
+            if (temp_data["ENTRY_STATE"] == "BAD"):
+                bot.send_message(userID, MSGs.trying_again)
+                attempts = attempts + 1
+                continue
+            else:
+                break
+        if (temp_data["ENTRY_STATE"] == "BAD"):
+            return MSGs.cant_do_it_now
+
+        if (temp_data["PASSWORD_STATE"] == "WRONG"):
+            return MSGs.your_password_is_wrong
+
+        temp_PLC = temp_data["Place"]
+        PLCs_markup = types.InlineKeyboardMarkup(row_width=1)
+        for elem in sorted(temp_PLC.keys()):
+            PLCs_markup.add(types.InlineKeyboardButton(temp_PLC[elem], callback_data=elem))
+
+        bot.send_message(userID,"لیست مکان‌هایی که می‌توان رزرو را انجام داد:",reply_markup=PLCs_markup)
+        return
+    except:
+        bot.send_message(userID, MSGs.we_cant_do_it_now)
+        Error_Handle.log_error("ERROR: users.get_DINING_forgotten_code")
         return
 
 def ask_to_choose_meal(userID):
@@ -408,7 +445,6 @@ def order_meal_next_week(userID):
         bot.send_message(userID, MSGs.we_cant_do_it_now)
         Error_Handle.log_error("ERROR: users.order_meal_next_week")
         return
-
 
 def wait_for_feedback(userID):
     try:

@@ -96,6 +96,13 @@ function get_balance_info(ref){
         ref.echo(parseFloat(ref.getElementInfo(credit_balance_selector).text.replace(",", ".")));
         return parseFloat(ref.getElementInfo(credit_balance_selector).text.replace(",", "."));
     }
+    else{//Looks like the balance is positive $_$
+        credit_balance_selector = 'span.main_balance_span';
+        if(ref.exists(credit_balance_selector)) {
+            ref.echo(parseFloat(ref.getElementInfo(credit_balance_selector).text.replace(",", ".")));
+            return parseFloat(ref.getElementInfo(credit_balance_selector).text.replace(",", "."));
+        }
+    }
     return -1;
 }
 

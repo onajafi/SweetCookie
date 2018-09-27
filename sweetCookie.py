@@ -63,6 +63,10 @@ def COMM_feedback(message):
 def COMM_respond(message):
     users.process_respond(message.chat.id)
 
+# @bot.message_handler(commands=['test'])
+# def test_FUNC(message):
+#     users.extract_DINING_places(message.chat.id)
+
 @bot.message_handler(content_types=['text'])
 def text_MSG(message):
     response = users.process_user_MSG(message.chat.id,message.text,message)
