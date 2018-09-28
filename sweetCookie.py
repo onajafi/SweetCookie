@@ -30,12 +30,12 @@ def COMM_fcode(message):
 
 @bot.message_handler(commands=['nextweek'])
 def COMM_nextweek(message):
-    check = trafficController.check_spam(message.chat.id, 'nextweek')
+    check = trafficController.check_spam(message.chat.id, 'start_nextweek')
     if check == "OK":
-        response = users.extract_DINING_next_weeks_data(message.chat.id)
+        response = users.next_week_data(message.chat.id)
         if response is not None:
             bot.send_message(message.chat.id,response)
-        trafficController.finished_process(message.chat.id,'nextweek')
+        trafficController.finished_process(message.chat.id,'start_nextweek')
 
 @bot.message_handler(commands=['thisweek'])
 def COMM_thisweek(message):

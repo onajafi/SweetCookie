@@ -11,7 +11,8 @@ last_user_msg = {}
 long_process = {"fcode",'CALL','ordermeal','thisweek','nextweek','fcode',
                 'CALL_UserPass','CALL_FCode','CALL_OrderNextWeek',"SCRIPT",
                 'set_places'}
-short_process = {'start','text'}
+
+short_process = {'start','text','start_nextweek'}
 
 
 #This function will check if a user is

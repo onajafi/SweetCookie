@@ -20,11 +20,13 @@ users_selected_PLCs = dataBase.get_users_selected_PLCs() # maps to a List
 print "initial vals:"
 print users_PLCs
 print users_selected_PLCs
+#TODO check the functions that need the PLCnum to be added
 
 user_meal_menu = {}
 user_order_list = {}
 tmp_resp_ID = -1
 call_PLC_pattern = re.compile("^PLC_[0-9]{1,2}$")
+call_NEXT_WEEK_pattern = re.compile("^NEXT_WEEK_[0-9]{1,2}$")
 
 def add_user(userID):
     try:
@@ -86,6 +88,7 @@ def process_user_MSG(userID, message_TXT,message):
         users_book[userID]["state"] == None
         return
 
+
 def process_user_call(userID,call_TXT,ACT_call):
     global users_selected_PLCs
     try:
@@ -97,13 +100,11 @@ def process_user_call(userID,call_TXT,ACT_call):
                 dataBase.update_UserPass(userID,None,None)
                 trafficController.finished_process(userID, "CALL_UserPass")
                 return MSGs.give_user
-
         elif (call_TXT == "OrderNextWeek"):
             check = trafficController.check_spam(userID, 'CALL_OrderNextWeek')
             if check == "OK":
                 order_meal_next_week(userID)
                 trafficController.finished_process(userID, 'CALL_OrderNextWeek')
-
         elif(call_TXT == "FCode"):#Forgotten Code
             if(users_book[userID]["user"] != None and users_book[userID]["pass"] != None):
                 check = trafficController.check_spam(userID, "CALL_FCode")
@@ -116,8 +117,7 @@ def process_user_call(userID,call_TXT,ACT_call):
             else:
                 bot.send_message(userID,MSGs.please_enter_your_UserPass,reply_markup=MSGs.enter_userpass_markup)
                 return
-        elif(users_book[userID]["state"] in (1,2,3,4,5,6,7) and
-                     call_TXT in ("0","1","2","3","nevermind")):
+        elif(users_book[userID]["state"] in (1,2,3,4,5,6,7) and call_TXT in ("0","1","2","3","nevermind")):
             print "STEP->2"
             if(call_TXT == "nevermind"):
                 appending_ans = "چیزی نمی‌خوام"
@@ -134,12 +134,11 @@ def process_user_call(userID,call_TXT,ACT_call):
             if check == "OK":
                 ask_to_choose_meal(userID)
                 trafficController.finished_process(userID, "SCRIPT")
-
         elif(call_PLC_pattern.match(call_TXT)): # if it matches something like "PLC_19"
-            PLC_number = re.search('[0-9]{1,2}', "PLC_19").group(0)
+            PLC_number = re.search('[0-9]{1,2}', call_TXT).group(0)
             if(PLC_number in users_selected_PLCs[userID]):# the user wants to cancel this place
                 users_selected_PLCs[userID].remove(PLC_number)
-                print "REMOVED"
+                # print "REMOVED"
             else:
                 users_selected_PLCs[userID].append(PLC_number)
 
@@ -175,6 +174,17 @@ def process_user_call(userID,call_TXT,ACT_call):
                 temp_MSG = "جایی برای تحویل وعده انتخاب نشده... :("
 
             bot.edit_message_text(temp_MSG,userID,ACT_call.message.message_id, reply_markup=MSGs.none_markup)
+        elif(call_NEXT_WEEK_pattern.match(call_TXT)):
+            PLC_number = re.search('[0-9]{1,2}', call_TXT).group(0)
+            check = trafficController.check_spam(userID, 'nextweek')
+            if check == "OK":
+                response = extract_DINING_next_weeks_data(userID,PLC_number) #TODO start from here and implement the PLC_number...
+                if response is not None:
+                    bot.send_message(userID, response)
+                trafficController.finished_process(userID, 'nextweek')
+
+        elif (call_NEXT_WEEK_pattern.match(call_TXT)):
+            pass
         else:
             print "STEP->3"
             bot.send_message(userID, "Don't know what you called!?!?!?\n" + str(users_book[userID]["state"]) + '\n' + call_TXT)
@@ -193,6 +203,45 @@ def update_DINING_UserPass(userID,username_DINING,password_DINING):
     except:
         bot.send_message(userID, MSGs.we_cant_do_it_now)
         Error_Handle.log_error("ERROR: users.update_DINING_UserPass")
+        return
+
+
+
+def get_DINING_forgotten_code(userID):
+    try:
+        attempts = 1
+        while attempts <= 3:
+            bot.send_message(userID, MSGs.trying_to_enter)
+            temp_data = scriptCaller.get_user_DINING_forgotten_code(users_book[userID]["user"],
+                                                          users_book[userID]["pass"],
+                                                          userID)
+            print temp_data
+            if(temp_data == None):
+                bot.send_message(userID,MSGs.we_cant_do_it_now)
+                return
+            if (temp_data["ENTRY_STATE"] == "BAD"):
+                bot.send_message(userID, MSGs.trying_again)
+                attempts = attempts + 1
+                continue
+            else:
+                break
+        if (temp_data["ENTRY_STATE"] == "BAD"):
+            return MSGs.cant_do_it_now
+
+        if (temp_data["PASSWORD_STATE"] == "WRONG"):
+            return MSGs.your_password_is_wrong
+
+        if("FCode" not in temp_data.keys()):
+            bot.send_message(userID, MSGs.we_cant_do_it_now)
+            return
+
+        message_TXT = ""
+        message_TXT += "کد فراموشی: \n" + str(temp_data["FCode"])
+
+        return message_TXT
+    except:
+        bot.send_message(userID, MSGs.we_cant_do_it_now)
+        Error_Handle.log_error("ERROR: users.get_DINING_forgotten_code")
         return
 
 
@@ -257,44 +306,26 @@ def extract_DINING_data(userID):
         Error_Handle.log_error("ERROR: users.extract_DINING_data")
         return
 
-def get_DINING_forgotten_code(userID):
+
+def next_week_data(userID):
     try:
-        attempts = 1
-        while attempts <= 3:
-            bot.send_message(userID, MSGs.trying_to_enter)
-            temp_data = scriptCaller.get_user_DINING_forgotten_code(users_book[userID]["user"],
-                                                          users_book[userID]["pass"],
-                                                          userID)
-            print temp_data
-            if(temp_data == None):
-                bot.send_message(userID,MSGs.we_cant_do_it_now)
-                return
-            if (temp_data["ENTRY_STATE"] == "BAD"):
-                bot.send_message(userID, MSGs.trying_again)
-                attempts = attempts + 1
-                continue
-            else:
-                break
-        if (temp_data["ENTRY_STATE"] == "BAD"):
-            return MSGs.cant_do_it_now
+        tmp_PLCs = users_PLCs[userID]
+        selected_PLCs = get_selected_PLCs(userID)
 
-        if (temp_data["PASSWORD_STATE"] == "WRONG"):
-            return MSGs.your_password_is_wrong
+        if(selected_PLCs):#It's not empty
+            PLCs_markup = types.InlineKeyboardMarkup(row_width=1)
+            for elem in selected_PLCs:
+                PLCs_markup.add(types.InlineKeyboardButton(tmp_PLCs[elem], callback_data="NEXT_WEEK_"+ elem))
+            bot.send_message(userID, "انتخاب کنید:",reply_markup = PLCs_markup)# TODO we can skip this part when there is only one decision
+        else:
+            bot.send_message(userID, MSGs.no_selected_PLCs)
 
-        if("FCode" not in temp_data.keys()):
-            bot.send_message(userID, MSGs.we_cant_do_it_now)
-            return
-
-        message_TXT = ""
-        message_TXT += "کد فراموشی: \n" + str(temp_data["FCode"])
-
-        return message_TXT
     except:
-        bot.send_message(userID, MSGs.we_cant_do_it_now)
-        Error_Handle.log_error("ERROR: users.get_DINING_forgotten_code")
+        bot.send_message(userID,MSGs.we_cant_do_it_now)
+        Error_Handle.log_error("ERROR: users.extract_DINING_data")
         return
 
-def extract_DINING_next_weeks_data(userID):
+def extract_DINING_next_weeks_data(userID,PLCnum):
     try:
         attempts = 1
         while attempts <= 3:
@@ -350,29 +381,6 @@ def extract_DINING_next_weeks_data(userID):
         Error_Handle.log_error("ERROR: users.extract_DINING_next_weeks_data")
         return
 
-def submit_next_weeks_DINING_order(userID):
-    try:
-        # first check if there is anything to submit:
-        submit = False
-        for elem in user_order_list[userID].values():
-            if(elem != "nevermind"):
-                submit = True
-                break
-
-        if(not submit):
-            bot.send_message(userID,MSGs.there_is_nothing_to_submit)
-            extract_DINING_next_weeks_data(userID)
-            return
-
-        tempdata = scriptCaller.order_next_week_DINING_meal(users_book[userID]["user"],
-                                                 users_book[userID]["pass"],
-                                                 userID,
-                                                 user_order_list[userID])
-        extract_DINING_next_weeks_data(userID)
-    except:
-        bot.send_message(userID, MSGs.we_cant_do_it_now)
-        Error_Handle.log_error("ERROR: users.submit_next_weeks_DINING_order")
-        return
 
 def extract_DINING_places(userID):
     try:
@@ -425,6 +433,34 @@ def get_selected_PLCs(userID):
     if userID not in users_selected_PLCs.keys():
         users_selected_PLCs[userID] = []
     return users_selected_PLCs[userID]
+
+def ask_to_choose_reserve_places(userID):
+    pass
+
+
+def submit_next_weeks_DINING_order(userID):
+    try:
+        # first check if there is anything to submit:
+        submit = False
+        for elem in user_order_list[userID].values():
+            if(elem != "nevermind"):
+                submit = True
+                break
+
+        if(not submit):
+            bot.send_message(userID,MSGs.there_is_nothing_to_submit)
+            extract_DINING_next_weeks_data(userID)
+            return
+
+        tempdata = scriptCaller.order_next_week_DINING_meal(users_book[userID]["user"],
+                                                 users_book[userID]["pass"],
+                                                 userID,
+                                                 user_order_list[userID])
+        extract_DINING_next_weeks_data(userID)
+    except:
+        bot.send_message(userID, MSGs.we_cant_do_it_now)
+        Error_Handle.log_error("ERROR: users.submit_next_weeks_DINING_order")
+        return
 
 def ask_to_choose_meal(userID):
     try:
@@ -511,6 +547,7 @@ def order_meal_next_week(userID):
         Error_Handle.log_error("ERROR: users.order_meal_next_week")
         return
 
+
 def wait_for_feedback(userID):
     try:
         users_book[userID]["state"] = "FeedBack"
@@ -518,9 +555,5 @@ def wait_for_feedback(userID):
         bot.send_message(userID, MSGs.we_cant_do_it_now)
         Error_Handle.log_error("ERROR: users.wait_for_feedback")
         return
-
-def ask_to_choose_reserve_places(userID):
-    pass
-
 
 
