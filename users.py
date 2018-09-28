@@ -8,16 +8,23 @@ from emoji import emojize
 import dataBase
 from telebot import types
 import Error_Handle
+import re
 
 import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-users_book = dataBase.get_users_book_from_database()
-users_PLCs = dataBase.get_users_PLCs_from_database()
+users_book = dataBase.get_users_book_from_database() # maps to a Dictionary
+users_PLCs = dataBase.get_users_PLCs_from_database() # maps to a Dictionary
+users_selected_PLCs = dataBase.get_users_selected_PLCs() # maps to a List
+print "initial vals:"
+print users_PLCs
+print users_selected_PLCs
+
 user_meal_menu = {}
 user_order_list = {}
 tmp_resp_ID = -1
+call_PLC_pattern = re.compile("^PLC_[0-9]{1,2}$")
 
 def add_user(userID):
     try:
@@ -80,6 +87,7 @@ def process_user_MSG(userID, message_TXT,message):
         return
 
 def process_user_call(userID,call_TXT,ACT_call):
+    global users_selected_PLCs
     try:
         print "STEP->1"
         if (call_TXT == "UserPass"):
@@ -126,9 +134,50 @@ def process_user_call(userID,call_TXT,ACT_call):
             if check == "OK":
                 ask_to_choose_meal(userID)
                 trafficController.finished_process(userID, "SCRIPT")
+
+        elif(call_PLC_pattern.match(call_TXT)): # if it matches something like "PLC_19"
+            PLC_number = re.search('[0-9]{1,2}', "PLC_19").group(0)
+            if(PLC_number in users_selected_PLCs[userID]):# the user wants to cancel this place
+                users_selected_PLCs[userID].remove(PLC_number)
+                print "REMOVED"
+            else:
+                users_selected_PLCs[userID].append(PLC_number)
+
+            temp_PLC = users_PLCs[userID]
+            temp_selected_PLCs = users_selected_PLCs[userID]
+
+            # Saving to the database
+            dataBase.update_PLC_database(userID, temp_PLC, temp_selected_PLCs)
+            # The users_selected_PLCs is already up-to-date
+
+            PLCs_markup = types.InlineKeyboardMarkup(row_width=1)
+            for elem in sorted(temp_PLC.keys()):
+                if elem in temp_selected_PLCs:
+                    emoji_check = '✅'
+                else:
+                    emoji_check = '❌'
+                PLCs_markup.add(
+                    types.InlineKeyboardButton(emojize(emoji_check + temp_PLC[elem]), callback_data="PLC_" + elem))
+            PLCs_markup.add(types.InlineKeyboardButton("تموم", callback_data="PLC_DONE"))
+            bot.edit_message_reply_markup(userID,ACT_call.message.message_id,reply_markup=PLCs_markup)
+        elif(call_TXT == "PLC_DONE"):
+            temp_PLC = users_PLCs[userID]
+            temp_selected_PLCs = users_selected_PLCs[userID]
+
+            if(temp_selected_PLCs):#If it's not NULL
+                temp_MSG = "مکان‌های انتخاب شده برای تحویل وعده غذایی:"
+                temp_MSG += '\n'
+                for elem in sorted(temp_PLC.keys()):
+                    if elem in temp_selected_PLCs:
+                        temp_MSG += emojize('✅' + temp_PLC[elem])
+                        temp_MSG += '\n'
+            else:
+                temp_MSG = "جایی برای تحویل وعده انتخاب نشده... :("
+
+            bot.edit_message_text(temp_MSG,userID,ACT_call.message.message_id, reply_markup=MSGs.none_markup)
         else:
             print "STEP->3"
-            bot.send_message(userID, "Don't know what you sent!?!?!?\n" + str(users_book[userID]["state"]) + '\n' + call_TXT)
+            bot.send_message(userID, "Don't know what you called!?!?!?\n" + str(users_book[userID]["state"]) + '\n' + call_TXT)
             pass
     except:
         bot.send_message(userID, MSGs.we_cant_do_it_now)
@@ -349,17 +398,33 @@ def extract_DINING_places(userID):
         if (temp_data["PASSWORD_STATE"] == "WRONG"):
             return MSGs.your_password_is_wrong
 
-        temp_PLC = temp_data["Place"]
+        #Success!!! we have the data now, we can process it:
+        temp_PLC = temp_data["Place"] # temp_PLC is now a dictionary "<number>":"<Place name>"
+        temp_selected_PLCs = get_selected_PLCs(userID)
+
+        #Saving to the memory and database
+        dataBase.update_PLC_database(userID,temp_PLC,temp_selected_PLCs)
+        users_selected_PLCs[userID] = temp_selected_PLCs
+
         PLCs_markup = types.InlineKeyboardMarkup(row_width=1)
         for elem in sorted(temp_PLC.keys()):
-            PLCs_markup.add(types.InlineKeyboardButton(temp_PLC[elem], callback_data=elem))
-
-        bot.send_message(userID,"لیست مکان‌هایی که می‌توان رزرو را انجام داد:",reply_markup=PLCs_markup)
+            if elem in temp_selected_PLCs:
+                emoji_check = '✅'
+            else:
+                emoji_check = '❌'
+            PLCs_markup.add(types.InlineKeyboardButton(emojize(emoji_check + temp_PLC[elem]), callback_data= "PLC_" + elem))
+        PLCs_markup.add(types.InlineKeyboardButton("تموم", callback_data="PLC_DONE"))
+        bot.send_message(userID,"لیست مکان‌هایی که می‌توان رزرو را انجام داد(پس از پایان انتخاب گزینه تموم را انتخاب کنید):",reply_markup=PLCs_markup)
         return
     except:
         bot.send_message(userID, MSGs.we_cant_do_it_now)
-        Error_Handle.log_error("ERROR: users.get_DINING_forgotten_code")
+        Error_Handle.log_error("ERROR: users.extract_DINING_places")
         return
+
+def get_selected_PLCs(userID):
+    if userID not in users_selected_PLCs.keys():
+        users_selected_PLCs[userID] = []
+    return users_selected_PLCs[userID]
 
 def ask_to_choose_meal(userID):
     try:
@@ -454,6 +519,8 @@ def wait_for_feedback(userID):
         Error_Handle.log_error("ERROR: users.wait_for_feedback")
         return
 
+def ask_to_choose_reserve_places(userID):
+    pass
 
 
 

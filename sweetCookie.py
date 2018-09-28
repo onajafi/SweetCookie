@@ -51,12 +51,18 @@ def COMM_ordermeal(message):
     check = trafficController.check_spam(message.chat.id, 'ordermeal')
     if check == "OK":
         users.order_meal_next_week(message.chat.id)
-        trafficController.finished_process(message.chat.id, 'ordermeal')
 
 @bot.message_handler(commands=['feedback'])
 def COMM_feedback(message):
     bot.send_message(message.chat.id,MSGs.give_your_feedback)
     users.wait_for_feedback(message.chat.id)
+
+@bot.message_handler(commands=['set_places'])
+def test_FUNC(message):
+    check = trafficController.check_spam(message.chat.id, 'set_places')
+    if check == "OK":
+        users.extract_DINING_places(message.chat.id)
+        trafficController.finished_process(message.chat.id, 'set_places')
 
 # This command is for the admin:
 @bot.message_handler(commands=['respond'])

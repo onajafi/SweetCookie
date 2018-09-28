@@ -50,25 +50,30 @@ def update_UserPass(userID,username_DINING,password_DINING):
         conn.commit()
 
 #Places:
-def _add_PLC(userID, PLCs_Dictionary):
+def _add_PLC(userID, PLCs_Dictionary, selected_PLCs = []):
     with sqlite3.connect("users.sqlite") as conn:
-        conn.execute("INSERT INTO places VALUES (?, ?);",
+        conn.execute("INSERT INTO places VALUES (?, ?, ?);",
                            (userID,
-                            PLCs_Dictionary))
+                            str(PLCs_Dictionary),
+                            str(selected_PLCs)))
 
 #update or add the places the user can reserve
-def update_PLC_database(userID,PLCs_Dictionary):
+def update_PLC_database(userID,PLCs_Dictionary,selected_PLCs = []):
     with sqlite3.connect("users.sqlite") as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM places WHERE u_id=?",(userID,))
         sample_test = cur.fetchone()
         if sample_test == None:# we have a new place list
-            conn.execute("INSERT INTO places VALUES (?, ?);",
+            conn.execute("INSERT INTO places VALUES (?, ?, ?);",
                          (userID,
-                          PLCs_Dictionary))
+                          str(PLCs_Dictionary),
+                          str(selected_PLCs)))
             return False
         else:# update the existing place list of the user
-            conn.execute("UPDATE places SET PLCs=? WHERE u_id=?",(str(PLCs_Dictionary),userID))
+            conn.execute("UPDATE places SET PLCs=?,selected_PLCs=? WHERE u_id=?",
+                         (str(PLCs_Dictionary),
+                          str(selected_PLCs),
+                          userID))
             return True
 
 def get_users_PLCs_from_database():
@@ -82,7 +87,16 @@ def get_users_PLCs_from_database():
             output_users[elem[0]] = ast.literal_eval(elem[1])
         return output_users
 
-
+def get_users_selected_PLCs():
+    with sqlite3.connect("users.sqlite") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM places")
+        DB_table = cur.fetchall()
+        print DB_table
+        output_users = {}
+        for elem in DB_table:
+            output_users[elem[0]] = ast.literal_eval(elem[2])
+        return output_users
 
 with sqlite3.connect("users.sqlite") as conn:
     cur = conn.cursor()
@@ -96,7 +110,8 @@ with sqlite3.connect("users.sqlite") as conn:
                 "diningPASS VARCHAR(100));")
     cur.execute("CREATE TABLE IF NOT EXISTS places("
                 "u_id MEDIUMINT, "
-                "PLCs TEXT );")
+                "PLCs TEXT, "
+                "selected_PLCs TEXT);")
 
     conn.commit()
 
