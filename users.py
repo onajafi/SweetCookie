@@ -28,6 +28,7 @@ tmp_resp_ID = -1
 call_PLC_pattern = re.compile("^PLC_[0-9]{1,2}$")
 call_NEXT_WEEK_pattern = re.compile("^NEXT_WEEK_[0-9]{1,2}$")
 call_THIS_WEEK_pattern = re.compile("^THIS_WEEK_[0-9]{1,2}$")
+call_FCODE_pattern = re.compile("^FCODE_[0-9]{1,2}$")
 
 def add_user(userID):
     try:
@@ -122,9 +123,7 @@ def process_user_call(userID,call_TXT,ACT_call):
             if(users_book[userID]["user"] != None and users_book[userID]["pass"] != None):
                 check = trafficController.check_spam(userID, "CALL_FCode")
                 if check == "OK":
-                    tmp_MSG = scriptCaller.get_user_DINING_forgotten_code(users_book[userID]["user"],
-                                                                   users_book[userID]["pass"],
-                                                                   userID)
+                    tmp_MSG = forgotten_code(userID)
                     trafficController.finished_process(userID, "CALL_FCode")
                     return tmp_MSG
             else:
@@ -204,7 +203,7 @@ def process_user_call(userID,call_TXT,ACT_call):
                     bot.send_message(userID, response)
                 trafficController.finished_process(userID, 'nextweek')
 
-        elif (call_THIS_WEEK_pattern.match(call_TXT)):
+        elif(call_THIS_WEEK_pattern.match(call_TXT)):
             PLC_number = re.search('[0-9]{1,2}', call_TXT).group(0)
             check = trafficController.check_spam(userID, 'thisweek')
             if check == "OK":
@@ -213,6 +212,16 @@ def process_user_call(userID,call_TXT,ACT_call):
                 if response is not None:
                     bot.send_message(userID, response)
                 trafficController.finished_process(userID, 'thisweek')
+
+        elif(call_FCODE_pattern.match(call_TXT)):
+            PLC_number = re.search('[0-9]{1,2}', call_TXT).group(0)
+            check = trafficController.check_spam(userID, 'fcode')
+            if check == "OK":
+                response = get_DINING_forgotten_code(userID,
+                                               PLC_number)
+                if response is not None:
+                    bot.send_message(userID, response)
+                trafficController.finished_process(userID, 'fcode')
 
         else:
             print "STEP->3"
@@ -235,15 +244,42 @@ def update_DINING_UserPass(userID,username_DINING,password_DINING):
         return
 
 
+def forgotten_code(userID):
+    try:
+        tmp_PLCs = users_PLCs[userID]
+        selected_PLCs = get_selected_PLCs(userID)
 
-def get_DINING_forgotten_code(userID):
+        if(len(selected_PLCs)>1):#It's not empty
+            PLCs_markup = types.InlineKeyboardMarkup(row_width=1)
+            for elem in selected_PLCs:
+                PLCs_markup.add(types.InlineKeyboardButton(tmp_PLCs[elem], callback_data="FCODE_"+ elem))
+
+            bot.send_message(userID, MSGs.select_PLC,reply_markup = PLCs_markup)
+        elif (len(selected_PLCs) == 1):
+            trafficController.drop_check(userID)
+            check = trafficController.check_spam(userID, 'fcode')
+            if check == "OK":
+                response = get_DINING_forgotten_code(userID,
+                                               selected_PLCs[0])
+                if response is not None:
+                    bot.send_message(userID, response)
+                trafficController.finished_process(userID, 'fcode')
+        else:
+            bot.send_message(userID, MSGs.no_selected_PLCs)
+
+    except:
+        bot.send_message(userID,MSGs.we_cant_do_it_now)
+        Error_Handle.log_error("ERROR: users.forgotten_code")
+        return
+def get_DINING_forgotten_code(userID,PLCnum):
     try:
         attempts = 1
         while attempts <= 3:
             bot.send_message(userID, MSGs.trying_to_enter)
             temp_data = scriptCaller.get_user_DINING_forgotten_code(users_book[userID]["user"],
                                                           users_book[userID]["pass"],
-                                                          userID)
+                                                          userID,
+                                                          PLCnum)
             print temp_data
             if(temp_data == None):
                 bot.send_message(userID,MSGs.we_cant_do_it_now)

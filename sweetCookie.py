@@ -22,12 +22,12 @@ def send_welcome(message):
 
 @bot.message_handler(commands=['fcode'])
 def COMM_fcode(message):
-    check = trafficController.check_spam(message.chat.id, 'fcode')
+    check = trafficController.check_spam(message.chat.id, 'COMM_fcode')
     if check == "OK":
-        response = users.get_DINING_forgotten_code(message.chat.id)
+        response = users.forgotten_code(message.chat.id)
         if response is not None:
             bot.send_message(message.chat.id,response)
-        trafficController.finished_process(message.chat.id,'fcode')
+        trafficController.finished_process(message.chat.id,'COMM_fcode')
 
 @bot.message_handler(commands=['nextweek'])
 def COMM_nextweek(message):
@@ -86,12 +86,16 @@ def test_callback(call):
     if users.know_user(call.from_user.id) == False:
         return
 
-    print "We have a call..."
+    # print "We have a call..."
     response = users.process_user_call(call.from_user.id,call.data,call)
-    print "response: " + str(response)
+    # print "response: " + str(response)
     if response is not None:
         bot.send_message(call.from_user.id, response)
-    bot.answer_callback_query(call.id)
+
+    try:
+        bot.answer_callback_query(call.id)
+    except:
+        pass
 
 
 #Here are the threads:
