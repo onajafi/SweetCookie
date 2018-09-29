@@ -47,5 +47,9 @@ def finished_process(userID,MSG_type):
         del last_user_msg[userID]
         print "++DELETED++"
 
+def drop_check(userID):
+    if userID in last_user_msg.keys():
+        del last_user_msg[userID]
+
 
 

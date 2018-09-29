@@ -37,6 +37,17 @@ def add_user(userID):
         Error_Handle.log_error("ERROR: users.add_user")
         return
 
+#Clear places both in memory and database
+def clear_PLCs(userID):
+    try:
+        users_PLCs[userID] = {}
+        users_selected_PLCs[userID] = []
+        dataBase.update_PLC_database(userID,users_PLCs[userID],users_selected_PLCs[userID])
+    except:
+        bot.send_message(userID, MSGs.we_cant_do_it_now)
+        Error_Handle.log_error("ERROR: users.clear_PLCs")
+        return
+
 def know_user(userID):
     try:
         if (userID not in users_book.keys()):
@@ -91,6 +102,7 @@ def process_user_MSG(userID, message_TXT,message):
 
 def process_user_call(userID,call_TXT,ACT_call):
     global users_selected_PLCs
+    global users_PLCs
     try:
         print "STEP->1"
         if (call_TXT == "UserPass"):
@@ -100,7 +112,7 @@ def process_user_call(userID,call_TXT,ACT_call):
                 dataBase.update_UserPass(userID,None,None)
                 trafficController.finished_process(userID, "CALL_UserPass")
                 return MSGs.give_user
-        elif (call_TXT == "OrderNextWeek"):
+        elif (call_TXT == "OrderNextWeek"):#TODO
             check = trafficController.check_spam(userID, 'CALL_OrderNextWeek')
             if check == "OK":
                 order_meal_next_week(userID)
@@ -117,6 +129,7 @@ def process_user_call(userID,call_TXT,ACT_call):
             else:
                 bot.send_message(userID,MSGs.please_enter_your_UserPass,reply_markup=MSGs.enter_userpass_markup)
                 return
+
         elif(users_book[userID]["state"] in (1,2,3,4,5,6,7) and call_TXT in ("0","1","2","3","nevermind")):
             print "STEP->2"
             if(call_TXT == "nevermind"):
@@ -134,13 +147,19 @@ def process_user_call(userID,call_TXT,ACT_call):
             if check == "OK":
                 ask_to_choose_meal(userID)
                 trafficController.finished_process(userID, "SCRIPT")
+
         elif(call_PLC_pattern.match(call_TXT)): # if it matches something like "PLC_19"
             PLC_number = re.search('[0-9]{1,2}', call_TXT).group(0)
+            print "::::"
+            print users_PLCs
             if(PLC_number in users_selected_PLCs[userID]):# the user wants to cancel this place
                 users_selected_PLCs[userID].remove(PLC_number)
                 # print "REMOVED"
             else:
                 users_selected_PLCs[userID].append(PLC_number)
+
+            print users_PLCs
+            print "::::"
 
             temp_PLC = users_PLCs[userID]
             temp_selected_PLCs = users_selected_PLCs[userID]
@@ -312,11 +331,21 @@ def next_week_data(userID):
         tmp_PLCs = users_PLCs[userID]
         selected_PLCs = get_selected_PLCs(userID)
 
-        if(selected_PLCs):#It's not empty
+        if(len(selected_PLCs)>1):#It's not empty
             PLCs_markup = types.InlineKeyboardMarkup(row_width=1)
             for elem in selected_PLCs:
                 PLCs_markup.add(types.InlineKeyboardButton(tmp_PLCs[elem], callback_data="NEXT_WEEK_"+ elem))
-            bot.send_message(userID, "انتخاب کنید:",reply_markup = PLCs_markup)# TODO we can skip this part when there is only one decision
+
+            bot.send_message(userID, "انتخاب کنید:",reply_markup = PLCs_markup)
+        elif (len(selected_PLCs) == 1):
+            trafficController.drop_check(userID)
+            check = trafficController.check_spam(userID, 'nextweek')
+            if check == "OK":
+                response = extract_DINING_next_weeks_data(userID,
+                                                          selected_PLCs[0])
+                if response is not None:
+                    bot.send_message(userID, response)
+                trafficController.finished_process(userID, 'nextweek')
         else:
             bot.send_message(userID, MSGs.no_selected_PLCs)
 
@@ -332,7 +361,8 @@ def extract_DINING_next_weeks_data(userID,PLCnum):
             bot.send_message(userID, MSGs.trying_to_enter_next_week)
             temp_data = scriptCaller.get_user_next_week_DINING_data(users_book[userID]["user"],
                                                           users_book[userID]["pass"],
-                                                          userID)
+                                                          userID,
+                                                          PLCnum)
             print str(temp_data)
             if (temp_data["ENTRY_STATE"] == "BAD"):
                 bot.send_message(userID, MSGs.trying_again)
@@ -412,6 +442,7 @@ def extract_DINING_places(userID):
 
         #Saving to the memory and database
         dataBase.update_PLC_database(userID,temp_PLC,temp_selected_PLCs)
+        users_PLCs[userID] = temp_PLC
         users_selected_PLCs[userID] = temp_selected_PLCs
 
         PLCs_markup = types.InlineKeyboardMarkup(row_width=1)

@@ -98,6 +98,13 @@ function get_balance_info(ref){
         ref.echo(parseFloat(ref.getElementInfo(credit_balance_selector).text.replace(",", ".")));
         return parseFloat(ref.getElementInfo(credit_balance_selector).text.replace(",", "."));
     }
+    else{//Looks like the balance is positive $_$
+        credit_balance_selector = 'span.main_balance_span';
+        if(ref.exists(credit_balance_selector)) {
+            ref.echo(parseFloat(ref.getElementInfo(credit_balance_selector).text.replace(",", ".")));
+            return parseFloat(ref.getElementInfo(credit_balance_selector).text.replace(",", "."));
+        }
+    }
     return -1;
 }
 
@@ -145,14 +152,18 @@ casper.then(function() {
         this.exit();
     }
   })
-  /*.thenClick('.navigation-link:nth-child(1)')*/
-  .then(function(){
-    this.wait(3000, function(){this.echo('Waiting finished')});
-  })
-  .thenClick('.navigation-link:nth-child(1)')
-  .then(function(){
+    .thenClick('.navigation-link:nth-child(1)')
+    .then(function(){
     this.wait(4000, function(){this.echo('Waiting finished')});
-  })
+    })
+    .then(function(){
+        var form = document.querySelector('select#foodreservesdefineform-self_id');
+        form.selectedIndex = parsed_input_JSON["PLCnum"];
+        $(form).val(parsed_input_JSON["PLCnum"]).change();
+    })
+    .then(function(){
+    this.wait(3000, function(){this.echo('Waiting finished')});
+    })
   .then(function(){
     output_for_JSON["Table"] = give_meal_data_in_table(this);
     this.echo("------------------------------------------------");

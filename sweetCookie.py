@@ -17,6 +17,7 @@ def send_welcome(message):
         bot.send_message(message.chat.id,MSGs.greetings,reply_markup = MSGs.enter_userpass_markup,parse_mode='HTML')
         users.add_user(message.chat.id)
         print dataBase.check_the_user_in_DB(message)
+        users.clear_PLCs(message.chat.id)
         trafficController.finished_process(message.chat.id,'start')
 
 @bot.message_handler(commands=['fcode'])
