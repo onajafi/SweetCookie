@@ -83,8 +83,6 @@ def text_MSG(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def test_callback(call):
-
-
     if users.know_user(call.from_user.id) == False:
         return
 
@@ -93,6 +91,7 @@ def test_callback(call):
     print "response: " + str(response)
     if response is not None:
         bot.send_message(call.from_user.id, response)
+    bot.answer_callback_query(call.id)
 
 
 #Here are the threads:
