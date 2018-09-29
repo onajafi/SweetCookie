@@ -31,21 +31,21 @@ def COMM_fcode(message):
 
 @bot.message_handler(commands=['nextweek'])
 def COMM_nextweek(message):
-    check = trafficController.check_spam(message.chat.id, 'start_nextweek')
+    check = trafficController.check_spam(message.chat.id, 'COMM_nextweek')
     if check == "OK":
         response = users.next_week_data(message.chat.id)
         if response is not None:
             bot.send_message(message.chat.id,response)
-        trafficController.finished_process(message.chat.id,'start_nextweek')
+        trafficController.finished_process(message.chat.id,'COMM_nextweek')
 
 @bot.message_handler(commands=['thisweek'])
 def COMM_thisweek(message):
-    check = trafficController.check_spam(message.chat.id, 'thisweek')
+    check = trafficController.check_spam(message.chat.id, 'COMM_thisweek')
     if check == "OK":
-        response = users.extract_DINING_data(message.chat.id)
+        response = users.this_week_data(message.chat.id)
         if response is not None:
             bot.send_message(message.chat.id, response)
-        trafficController.finished_process(message.chat.id,'thisweek')
+        trafficController.finished_process(message.chat.id,'COMM_thisweek')
 
 @bot.message_handler(commands=['ordermeal'])
 def COMM_ordermeal(message):
@@ -83,6 +83,8 @@ def text_MSG(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def test_callback(call):
+
+
     if users.know_user(call.from_user.id) == False:
         return
 

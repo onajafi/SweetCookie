@@ -127,52 +127,55 @@ casper.then(function() {
     }
 })
 .then(function(){
-    // scrape something
-    this.echo(parsed_input_JSON["pass"])
-    this.echo(parsed_input_JSON["user"])
-    this.echo(this.sendKeys('input#loginform-username', parsed_input_JSON["user"]));
-    this.echo(this.sendKeys('input#loginform-password', parsed_input_JSON["pass"]));
-    this.echo(this.getHTML('[class="btn btn-default btn-block"]'));
-  }).thenClick('[class="btn btn-default btn-block"]')
-  .thenOpen("http://dining.sharif.edu/admin/")
-  .then(function(){
-    // scrape something else
-    this.echo(this.getTitle());
-  })
-  .thenOpen("http://dining.sharif.edu/admin/food/food-reserve/reserve")
-  .then(function(){
-    // scrape something else
-    this.echo(this.getTitle());
-    if(this.exists('.navigation-link:nth-child(1)')) {
-        this.echo(this.getHTML('.navigation-link:nth-child(1)'));
-        output_for_JSON["PASSWORD_STATE"] = "CORRECT";
-    }else{
-        output_for_JSON["PASSWORD_STATE"] = "WRONG";
-        extract_json_file();
-        this.exit();
-    }
-  })
+        // scrape something
+        this.echo(parsed_input_JSON["pass"])
+        this.echo(parsed_input_JSON["user"])
+        this.echo(this.sendKeys('input#loginform-username', parsed_input_JSON["user"]));
+        this.echo(this.sendKeys('input#loginform-password', parsed_input_JSON["pass"]));
+        this.echo(this.getHTML('[class="btn btn-default btn-block"]'));
+    })
+    .thenClick('[class="btn btn-default btn-block"]')
+    .thenOpen("http://dining.sharif.edu/admin/")
+    .then(function(){
+        // scrape something else
+        this.echo(this.getTitle());
+    })
+    .thenOpen("http://dining.sharif.edu/admin/food/food-reserve/reserve")
+    .then(function(){
+        // scrape something else
+        this.echo(this.getTitle());
+        if(this.exists('.navigation-link:nth-child(1)')) {
+            this.echo(this.getHTML('.navigation-link:nth-child(1)'));
+            output_for_JSON["PASSWORD_STATE"] = "CORRECT";
+        }else{
+            output_for_JSON["PASSWORD_STATE"] = "WRONG";
+            extract_json_file();
+            this.exit();
+        }
+    })
+    .then(function() {
+        this.evaluate(function (row_value) {
+            var form = document.querySelector('select#foodreservesdefineform-self_id');
+            form.selectedIndex = row_value;
+            $(form).val(row_value).change();
+
+        }, parsed_input_JSON["PLCnum"]);
+    })
+    .then(function(){
+        this.wait(3000, function(){this.echo('Waiting finished')});
+    })
     .thenClick('.navigation-link:nth-child(1)')
     .then(function(){
-    this.wait(4000, function(){this.echo('Waiting finished')});
+        this.wait(4000, function(){this.echo('Waiting finished')});
     })
     .then(function(){
-        var form = document.querySelector('select#foodreservesdefineform-self_id');
-        form.selectedIndex = parsed_input_JSON["PLCnum"];
-        $(form).val(parsed_input_JSON["PLCnum"]).change();
-    })
-    .then(function(){
-    this.wait(3000, function(){this.echo('Waiting finished')});
-    })
-  .then(function(){
-    output_for_JSON["Table"] = give_meal_data_in_table(this);
-    this.echo("------------------------------------------------");
-    output_for_JSON["Balance"] = get_balance_info(this);
+        output_for_JSON["Table"] = give_meal_data_in_table(this);
+        this.echo("------------------------------------------------");
+        output_for_JSON["Balance"] = get_balance_info(this);
 
-    this.capture('navigation.png');
+        this.capture('navigation.png');
 
-    extract_json_file();
-
-  });
+        extract_json_file();
+    });
 
 casper.run();

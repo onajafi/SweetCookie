@@ -10,8 +10,8 @@ import Error_Handle
 if not os.path.exists('tmp'):
     os.makedirs('tmp')
 
-def get_user_DINING_data(username,password,chat_id):
-    input_data = {"pass":password,"user":username,"chat_id":chat_id}
+def get_user_DINING_data(username,password,chat_id,PLCnum):
+    input_data = {"pass":password,"user":username,"chat_id":chat_id,"PLCnum":PLCnum}
     input_file_name = 'input_EXT_' + str(chat_id) + '.json'
     with open('tmp/' + input_file_name, 'w') as outfile:
         json.dump(input_data, outfile)

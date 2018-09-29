@@ -149,14 +149,28 @@ casper.then(function() {
         this.exit();
     }
   })
-  /*.thenClick('.navigation-link:nth-child(1)')*/
-  .then(function(){
-    this.wait(3000, function(){this.echo('Waiting finished')});
-  })
-  // .thenClick('.navigation-link:nth-child(1)')
-  .then(function(){
+    .then(function(){
     this.wait(4000, function(){this.echo('Waiting finished')});
-  })
+    })
+    .then(function(){
+        // this.echo("------------------------------------------------");
+
+        // this.echo(parsed_input_JSON["PLCnum"]);
+        // this.echo(Number(parsed_input_JSON["PLCnum"]));
+        // this.echo(this.getHTML('select#foodreservesdefineform-self_id'));
+
+        this.evaluate(function(row_value) {
+            var form = document.querySelector('select#foodreservesdefineform-self_id');
+            form.selectedIndex = row_value;
+            $(form).val(row_value).change(); //TODO do something about the values (#19 is just for the boys section)
+
+        },parsed_input_JSON["PLCnum"]);
+
+
+    })
+    .then(function(){
+    this.wait(3000, function(){this.echo('Waiting finished')});
+    })
   .then(function(){
     output_for_JSON["Table"] = give_meal_data_in_table(this);
     this.echo("------------------------------------------------");
