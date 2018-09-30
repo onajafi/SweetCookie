@@ -111,11 +111,13 @@ def get_user_DINING_forgotten_code(username,password,chat_id,PLCnum):
     # os.remove('tmp/' + input_file_name)
     return data
 
-def order_next_week_DINING_meal(username,password,chat_id,order_list):
+def order_next_week_DINING_meal(username,password,chat_id,order_list,PLCnum):
+
     input_data = {"pass": password,
                   "user": username,
                   "chat_id": chat_id,
-                  "order_list":order_list}
+                  "order_list":order_list,
+                  "PLCnum":PLCnum}
 
     input_file_name = 'input_RES_' + str(chat_id) + '.json'
     with open('tmp/' + input_file_name, 'w') as outfile:

@@ -65,12 +65,23 @@ casper.then(function() {
   .then(function(){
       for(var i=0;i<10;i++) {//wait for 10 secs in total
           this.wait(1000, function () {});
-          if(this.exists('.navigation-link:nth-child(1)')){
+          if(this.exists('select#foodreservesdefineform-self_id')){
               break;
           }
       }
       this.echo('Waiting finished')
   })
+    .then(function() {
+        this.evaluate(function (row_value) {
+            var form = document.querySelector('select#foodreservesdefineform-self_id');
+            form.selectedIndex = row_value;
+            $(form).val(row_value).change();
+
+        }, parsed_input_JSON["PLCnum"]);
+    })
+    .then(function(){
+        this.wait(3000, function(){this.echo('Waiting finished')});
+    })
   .thenClick('.navigation-link:nth-child(1)')
   .then(function(){
     this.wait(3000, function(){this.echo('Waiting finished')});

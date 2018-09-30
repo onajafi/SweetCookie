@@ -49,9 +49,12 @@ def COMM_thisweek(message):
 
 @bot.message_handler(commands=['ordermeal'])
 def COMM_ordermeal(message):
-    check = trafficController.check_spam(message.chat.id, 'ordermeal')
+    check = trafficController.check_spam(message.chat.id, 'COMM_ordermeal')
     if check == "OK":
-        users.order_meal_next_week(message.chat.id)
+        response = users.STARTorder_meal(message.chat.id)
+        if response is not None:
+            bot.send_message(message.chat.id, response)
+        trafficController.finished_process(message.chat.id, 'COMM_ordermeal')
 
 @bot.message_handler(commands=['feedback'])
 def COMM_feedback(message):

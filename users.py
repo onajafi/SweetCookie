@@ -25,10 +25,12 @@ print users_selected_PLCs
 user_meal_menu = {}
 user_order_list = {}
 tmp_resp_ID = -1
+
 call_PLC_pattern = re.compile("^PLC_[0-9]{1,2}$")
 call_NEXT_WEEK_pattern = re.compile("^NEXT_WEEK_[0-9]{1,2}$")
 call_THIS_WEEK_pattern = re.compile("^THIS_WEEK_[0-9]{1,2}$")
 call_FCODE_pattern = re.compile("^FCODE_[0-9]{1,2}$")
+call_ORDER_NEXT_WEEK_pattern = re.compile("^ORDER_NEXT_WEEK_[0-9]{1,2}$")
 
 def add_user(userID):
     try:
@@ -115,10 +117,10 @@ def process_user_call(userID,call_TXT,ACT_call):
                 trafficController.finished_process(userID, "CALL_UserPass")
                 return MSGs.give_user
         elif (call_TXT == "OrderNextWeek"):#TODO
-            check = trafficController.check_spam(userID, 'CALL_OrderNextWeek')
+            check = trafficController.check_spam(userID, 'COMM_ordermeal')
             if check == "OK":
-                order_meal_next_week(userID)
-                trafficController.finished_process(userID, 'CALL_OrderNextWeek')
+                STARTorder_meal(userID)
+                trafficController.finished_process(userID, 'COMM_ordermeal')
         elif(call_TXT == "FCode"):#Forgotten Code
             if(users_book[userID]["user"] != None and users_book[userID]["pass"] != None):
                 check = trafficController.check_spam(userID, "CALL_FCode")
@@ -222,6 +224,16 @@ def process_user_call(userID,call_TXT,ACT_call):
                 if response is not None:
                     bot.send_message(userID, response)
                 trafficController.finished_process(userID, 'fcode')
+
+        elif(call_ORDER_NEXT_WEEK_pattern.match(call_TXT)):
+            PLC_number = re.search('[0-9]{1,2}', call_TXT).group(0)
+            check = trafficController.check_spam(userID, 'ordermeal')
+            if check == "OK":
+                response = order_meal_next_week(userID,
+                                                     PLC_number)
+                if response is not None:
+                    bot.send_message(userID, response)
+                trafficController.finished_process(userID, 'ordermeal')
 
         else:
             print "STEP->3"
@@ -544,6 +556,8 @@ def ask_to_choose_reserve_places(userID):
 
 def submit_next_weeks_DINING_order(userID):
     try:
+        PLCnum = user_order_list[userID]["PLCnum"]
+        del user_order_list[userID]["PLCnum"]
         # first check if there is anything to submit:
         submit = False
         for elem in user_order_list[userID].values():
@@ -553,14 +567,15 @@ def submit_next_weeks_DINING_order(userID):
 
         if(not submit):
             bot.send_message(userID,MSGs.there_is_nothing_to_submit)
-            extract_DINING_next_weeks_data(userID)
+            extract_DINING_next_weeks_data(userID,PLCnum)
             return
 
         tempdata = scriptCaller.order_next_week_DINING_meal(users_book[userID]["user"],
                                                  users_book[userID]["pass"],
                                                  userID,
-                                                 user_order_list[userID])
-        extract_DINING_next_weeks_data(userID)
+                                                 user_order_list[userID],
+                                                 PLCnum)
+        extract_DINING_next_weeks_data(userID,PLCnum)
     except:
         bot.send_message(userID, MSGs.we_cant_do_it_now)
         Error_Handle.log_error("ERROR: users.submit_next_weeks_DINING_order")
@@ -611,14 +626,42 @@ def ask_to_choose_meal(userID):
         Error_Handle.log_error("ERROR: users.ask_to_choose_meal")
         return
 
-def order_meal_next_week(userID):
+def STARTorder_meal(userID):
+    try:
+        tmp_PLCs = users_PLCs[userID]
+        selected_PLCs = get_selected_PLCs(userID)
+
+        if(len(selected_PLCs)>1):#It's not empty
+            PLCs_markup = types.InlineKeyboardMarkup(row_width=1)
+            for elem in selected_PLCs:
+                PLCs_markup.add(types.InlineKeyboardButton(tmp_PLCs[elem], callback_data="ORDER_NEXT_WEEK_"+ elem))
+
+            bot.send_message(userID, MSGs.select_PLC,reply_markup = PLCs_markup)
+        elif (len(selected_PLCs) == 1):
+            trafficController.drop_check(userID)
+            check = trafficController.check_spam(userID, 'ordermeal')
+            if check == "OK":
+                response = order_meal_next_week(userID,
+                                               selected_PLCs[0])
+                if response is not None:
+                    bot.send_message(userID, response)
+                trafficController.finished_process(userID, 'ordermeal')
+        else:
+            bot.send_message(userID, MSGs.no_selected_PLCs)
+
+    except:
+        bot.send_message(userID,MSGs.we_cant_do_it_now)
+        Error_Handle.log_error("ERROR: users.STARTorder_meal")
+        return
+def order_meal_next_week(userID,PLCnum):
     try:
         attempts = 1
         while attempts <= 3:
             bot.send_message(userID, MSGs.trying_to_enter)
             temp_data = scriptCaller.get_user_next_week_DINING_data(users_book[userID]["user"],
                                                                     users_book[userID]["pass"],
-                                                                    userID)
+                                                                    userID,
+                                                                    PLCnum)
             print temp_data
             if (temp_data["ENTRY_STATE"] == "BAD"):
                 bot.send_message(userID, MSGs.trying_again)
@@ -641,10 +684,10 @@ def order_meal_next_week(userID):
             bot.send_message(userID,tmp_MSG)
             tmp_MSG = "ممکن هست در فرآیند سفارش بعضی از وعده‌ها گرفته نشه."
             bot.send_message(userID, tmp_MSG)
-
         user_meal_menu[userID] = temp_data["Table"]
         users_book[userID]["state"] = 0
         user_order_list[userID]={}
+        user_order_list[userID]["PLCnum"] = PLCnum
         ask_to_choose_meal(userID)
     except:
         bot.send_message(userID, MSGs.we_cant_do_it_now)
