@@ -65,7 +65,9 @@ def COMM_feedback(message):
 def test_FUNC(message):
     check = trafficController.check_spam(message.chat.id, 'set_places')
     if check == "OK":
-        users.extract_DINING_places(message.chat.id)
+        response = users.extract_DINING_places(message.chat.id)
+        if response is not None:
+            bot.send_message(message.chat.id, response)
         trafficController.finished_process(message.chat.id, 'set_places')
 
 # This command is for the admin:
@@ -118,13 +120,15 @@ def TUESDAY_ALARM():
     while(RUN_THREAD):
         try:
             now = datetime.datetime.utcnow() + datetime.timedelta(hours=3,minutes=30)
-            ALARM_TIME = now + datetime.timedelta(days = (1 - now.weekday()) % 7)
+            ALARM_TIME = now + datetime.timedelta(days = ((7 - now.weekday()) % 7) +1)
             ALARM_TIME = ALARM_TIME.replace(year=ALARM_TIME.year,
                                             month=ALARM_TIME.month,
                                             day = ALARM_TIME.day,
                                             hour=15, minute=00, second=00)
+            wait_time = (ALARM_TIME - now).total_seconds() % (7*24*60*60)
+            print wait_time
             print (ALARM_TIME - now).total_seconds()
-            time.sleep((ALARM_TIME - now).total_seconds())
+            time.sleep(wait_time)
             # time.sleep(2)
             for tmpUserID in users.users_book.keys():
                 print "++=",tmpUserID

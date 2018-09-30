@@ -519,7 +519,10 @@ def extract_DINING_places(userID):
             return MSGs.cant_do_it_now
 
         if (temp_data["PASSWORD_STATE"] == "WRONG"):
-            return MSGs.your_password_is_wrong
+            bot.send_message(userID, MSGs.your_password_is_wrong, reply_markup=MSGs.enter_userpass_markup)
+            return
+        else:
+            dataBase.update_UserPass(userID, users_book[userID]["user"], users_book[userID]["pass"])
 
         #Success!!! we have the data now, we can process it:
         temp_PLC = temp_data["Place"] # temp_PLC is now a dictionary "<number>":"<Place name>"
@@ -544,87 +547,11 @@ def extract_DINING_places(userID):
         bot.send_message(userID, MSGs.we_cant_do_it_now)
         Error_Handle.log_error("ERROR: users.extract_DINING_places")
         return
-
 def get_selected_PLCs(userID):
     if userID not in users_selected_PLCs.keys():
         users_selected_PLCs[userID] = []
     return users_selected_PLCs[userID]
 
-def ask_to_choose_reserve_places(userID):
-    pass
-
-
-def submit_next_weeks_DINING_order(userID):
-    try:
-        PLCnum = user_order_list[userID]["PLCnum"]
-        del user_order_list[userID]["PLCnum"]
-        # first check if there is anything to submit:
-        submit = False
-        for elem in user_order_list[userID].values():
-            if(elem != "nevermind"):
-                submit = True
-                break
-
-        if(not submit):
-            bot.send_message(userID,MSGs.there_is_nothing_to_submit)
-            extract_DINING_next_weeks_data(userID,PLCnum)
-            return
-
-        tempdata = scriptCaller.order_next_week_DINING_meal(users_book[userID]["user"],
-                                                 users_book[userID]["pass"],
-                                                 userID,
-                                                 user_order_list[userID],
-                                                 PLCnum)
-        extract_DINING_next_weeks_data(userID,PLCnum)
-    except:
-        bot.send_message(userID, MSGs.we_cant_do_it_now)
-        Error_Handle.log_error("ERROR: users.submit_next_weeks_DINING_order")
-        return
-
-def ask_to_choose_meal(userID):
-    try:
-        Markup = types.InlineKeyboardMarkup(row_width=1)
-        message_TXT = ""
-
-        while users_book[userID]["state"] < 7:# 7 days a week (starts from 0)
-            message_TXT = "انتخاب کنید:\n"
-            focused_row = users_book[userID]["state"]
-
-            message_TXT += user_meal_menu[userID][focused_row]["day"]
-            message_TXT += "\n"
-            message_TXT += user_meal_menu[userID][focused_row]["date"]
-
-            something_to_order = False
-            for idx,elem in enumerate(user_meal_menu[userID][focused_row]["meal_arr"]):
-                if(elem["status"] == "AWAITING"):
-                    Markup.add(types.InlineKeyboardButton(
-                        elem["meal_name"],
-                        callback_data=str(idx)))
-                    something_to_order = True
-
-            if(something_to_order):
-                Markup.add(types.InlineKeyboardButton(
-                    "نمی‌خوام",
-                    callback_data="nevermind"))
-                break
-            else:
-                users_book[userID]["state"] = users_book[userID]["state"] + 1
-                continue
-
-        if(users_book[userID]["state"] == 7):# process the request here
-            users_book[userID]["state"] = None
-            bot.send_message(userID, "در حال ثبت درخواست...")
-            # processing the request:
-            print user_order_list[userID]
-            print "----submitting----"
-            submit_next_weeks_DINING_order(userID)
-        else:
-            bot.send_message(userID,message_TXT,reply_markup = Markup)
-            users_book[userID]["state"] = users_book[userID]["state"] + 1
-    except:
-        bot.send_message(userID, MSGs.we_cant_do_it_now)
-        Error_Handle.log_error("ERROR: users.ask_to_choose_meal")
-        return
 
 def STARTorder_meal(userID):
     try:
@@ -692,6 +619,76 @@ def order_meal_next_week(userID,PLCnum):
     except:
         bot.send_message(userID, MSGs.we_cant_do_it_now)
         Error_Handle.log_error("ERROR: users.order_meal_next_week")
+        return
+def ask_to_choose_meal(userID):
+    try:
+        Markup = types.InlineKeyboardMarkup(row_width=1)
+        message_TXT = ""
+
+        while users_book[userID]["state"] < 7:# 7 days a week (starts from 0)
+            message_TXT = "انتخاب کنید:\n"
+            focused_row = users_book[userID]["state"]
+
+            message_TXT += user_meal_menu[userID][focused_row]["day"]
+            message_TXT += "\n"
+            message_TXT += user_meal_menu[userID][focused_row]["date"]
+
+            something_to_order = False
+            for idx,elem in enumerate(user_meal_menu[userID][focused_row]["meal_arr"]):
+                if(elem["status"] == "AWAITING"):
+                    Markup.add(types.InlineKeyboardButton(
+                        elem["meal_name"],
+                        callback_data=str(idx)))
+                    something_to_order = True
+
+            if(something_to_order):
+                Markup.add(types.InlineKeyboardButton(
+                    "نمی‌خوام",
+                    callback_data="nevermind"))
+                break
+            else:
+                users_book[userID]["state"] = users_book[userID]["state"] + 1
+                continue
+
+        if(users_book[userID]["state"] == 7):# process the request here
+            users_book[userID]["state"] = None
+            bot.send_message(userID, "در حال ثبت درخواست...")
+            # processing the request:
+            print user_order_list[userID]
+            print "----submitting----"
+            submit_next_weeks_DINING_order(userID)
+        else:
+            bot.send_message(userID,message_TXT,reply_markup = Markup)
+            users_book[userID]["state"] = users_book[userID]["state"] + 1
+    except:
+        bot.send_message(userID, MSGs.we_cant_do_it_now)
+        Error_Handle.log_error("ERROR: users.ask_to_choose_meal")
+        return
+def submit_next_weeks_DINING_order(userID):
+    try:
+        PLCnum = user_order_list[userID]["PLCnum"]
+        del user_order_list[userID]["PLCnum"]
+        # first check if there is anything to submit:
+        submit = False
+        for elem in user_order_list[userID].values():
+            if(elem != "nevermind"):
+                submit = True
+                break
+
+        if(not submit):
+            bot.send_message(userID,MSGs.there_is_nothing_to_submit)
+            extract_DINING_next_weeks_data(userID,PLCnum)
+            return
+
+        tempdata = scriptCaller.order_next_week_DINING_meal(users_book[userID]["user"],
+                                                 users_book[userID]["pass"],
+                                                 userID,
+                                                 user_order_list[userID],
+                                                 PLCnum)
+        extract_DINING_next_weeks_data(userID,PLCnum)
+    except:
+        bot.send_message(userID, MSGs.we_cant_do_it_now)
+        Error_Handle.log_error("ERROR: users.submit_next_weeks_DINING_order")
         return
 
 
