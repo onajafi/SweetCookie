@@ -258,10 +258,10 @@ def update_DINING_UserPass(userID,username_DINING,password_DINING):
 
 def forgotten_code(userID):
     try:
-        tmp_PLCs = users_PLCs[userID]
         selected_PLCs = get_selected_PLCs(userID)
 
         if(len(selected_PLCs)>1):#It's not empty
+            tmp_PLCs = users_PLCs[userID]
             PLCs_markup = types.InlineKeyboardMarkup(row_width=1)
             for elem in selected_PLCs:
                 PLCs_markup.add(types.InlineKeyboardButton(tmp_PLCs[elem], callback_data="FCODE_"+ elem))
@@ -324,10 +324,10 @@ def get_DINING_forgotten_code(userID,PLCnum):
 
 def this_week_data(userID):
     try:
-        tmp_PLCs = users_PLCs[userID]
         selected_PLCs = get_selected_PLCs(userID)
 
         if(len(selected_PLCs)>1):#It's not empty
+            tmp_PLCs = users_PLCs[userID]
             PLCs_markup = types.InlineKeyboardMarkup(row_width=1)
             for elem in selected_PLCs:
                 PLCs_markup.add(types.InlineKeyboardButton(tmp_PLCs[elem], callback_data="THIS_WEEK_"+ elem))
@@ -414,10 +414,10 @@ def extract_DINING_data(userID,PLCnum):
 
 def next_week_data(userID):
     try:
-        tmp_PLCs = users_PLCs[userID]
         selected_PLCs = get_selected_PLCs(userID)
 
         if(len(selected_PLCs)>1):#It's not empty
+            tmp_PLCs = users_PLCs[userID]
             PLCs_markup = types.InlineKeyboardMarkup(row_width=1)
             for elem in selected_PLCs:
                 PLCs_markup.add(types.InlineKeyboardButton(tmp_PLCs[elem], callback_data="NEXT_WEEK_"+ elem))
@@ -555,10 +555,10 @@ def get_selected_PLCs(userID):
 
 def STARTorder_meal(userID):
     try:
-        tmp_PLCs = users_PLCs[userID]
         selected_PLCs = get_selected_PLCs(userID)
 
         if(len(selected_PLCs)>1):#It's not empty
+            tmp_PLCs = users_PLCs[userID]
             PLCs_markup = types.InlineKeyboardMarkup(row_width=1)
             for elem in selected_PLCs:
                 PLCs_markup.add(types.InlineKeyboardButton(tmp_PLCs[elem], callback_data="ORDER_NEXT_WEEK_"+ elem))
