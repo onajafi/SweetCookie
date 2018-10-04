@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-from inits import bot
+from inits import bot,feedBack_target_chat
 import time, MSGs
 import users
 import dataBase
@@ -88,6 +88,10 @@ def text_MSG(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def test_callback(call):
+    try:
+        bot.answer_callback_query(call.id)
+    except:
+        pass
     if users.know_user(call.from_user.id) == False:
         return
 
@@ -97,10 +101,7 @@ def test_callback(call):
     if response is not None:
         bot.send_message(call.from_user.id, response)
 
-    try:
-        bot.answer_callback_query(call.id)
-    except:
-        pass
+
 
 
 #Here are the threads:
@@ -130,10 +131,17 @@ def TUESDAY_ALARM():
             print (ALARM_TIME - now).total_seconds()
             time.sleep(wait_time)
             # time.sleep(2)
+            counter = 0
             for tmpUserID in users.users_book.keys():
                 print "++=",tmpUserID
-                if(users.users_book[tmpUserID]["user"] != None and users.users_book[tmpUserID]["pass"] != None):#if there was some password to get in
-                    bot.send_message(tmpUserID,"وقت رزرو شده...",reply_markup = MSGs.reserve_time_markup)
+                try:
+                    if(users.users_book[tmpUserID]["user"] != None and users.users_book[tmpUserID]["pass"] != None):#if there was some password to get in
+                        bot.send_message(tmpUserID,"وقت رزرو شده...",reply_markup = MSGs.reserve_time_markup)
+                        counter = counter + 1
+                except:
+                    pass
+
+            bot.send_message(feedBack_target_chat,"Number of users: " + str(counter))
         except:
             pass
 

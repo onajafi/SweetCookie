@@ -132,17 +132,36 @@ def process_user_call(userID,call_TXT,ACT_call):
                 bot.send_message(userID,MSGs.please_enter_your_UserPass,reply_markup=MSGs.enter_userpass_markup)
                 return
 
-        elif(users_book[userID]["state"] in (1,2,3,4,5,6,7) and call_TXT in ("0","1","2","3","nevermind")):
-            print "STEP->2"
+        elif(users_book[userID]["state"] in range(1,8) and call_TXT in ("0","1","2","3","nevermind")):
+
             if(call_TXT == "nevermind"):
                 appending_ans = "چیزی نمی‌خوام"
             else:
-                appending_ans = user_meal_menu[userID][users_book[userID]["state"] - 1]["meal_arr"][int(call_TXT)]["meal_name"]
+                appending_ans = user_meal_menu[userID][users_book[userID]["state"] - 1]["lunch_arr"][int(call_TXT)]["meal_name"]
 
             bot.edit_message_text(text = ACT_call.message.text +"\n" + appending_ans,
                                   chat_id = userID,
                                   message_id = ACT_call.message.message_id,
                                   reply_markup = None)
+            user_order_list[userID][users_book[userID]["state"] - 1] = call_TXT
+
+            check = trafficController.check_spam(userID, "SCRIPT")
+            if check == "OK":
+                ask_to_choose_meal(userID)
+                trafficController.finished_process(userID, "SCRIPT")
+
+        elif (users_book[userID]["state"] in range(8, 15) and call_TXT in ("0", "1", "2", "3", "nevermind")):
+
+            if (call_TXT == "nevermind"):
+                appending_ans = "چیزی نمی‌خوام"
+            else:
+                appending_ans = user_meal_menu[userID][users_book[userID]["state"] - 8]["dinner_arr"][int(call_TXT)][
+                    "meal_name"]
+
+            bot.edit_message_text(text=ACT_call.message.text + "\n" + appending_ans,
+                                  chat_id=userID,
+                                  message_id=ACT_call.message.message_id,
+                                  reply_markup=None)
             user_order_list[userID][users_book[userID]["state"] - 1] = call_TXT
 
             check = trafficController.check_spam(userID, "SCRIPT")
@@ -385,26 +404,52 @@ def extract_DINING_data(userID,PLCnum):
 
         message_TXT = ""
         bot.send_message(userID, "هفته جاری:")
-        for row in temp_data["Table"]:
+        for row in temp_data["COMPLETE_TABLE"]:
             message_TXT += "==================\n"
             message_TXT += row["day"] + '-' + row["date"]
             message_TXT += "\n"
             # print "row:\n",row
-            for meal in row["meal_arr"]:
 
-                message_TXT += "------------------\n"
-                if(meal["status"] == "OK_DONE"):
+            # Lunch:
+            if (row["lunch_arr"]):
+                message_TXT += "ناهار:"
+                message_TXT += "\n"
+            for lunch in row["lunch_arr"]:
+
+                # message_TXT += "------------------\n"
+                if(lunch["status"] == "OK_DONE"):
                     message_TXT += emojize("✅ ")
-                elif (meal["status"] == "AWAITING"):
+                elif (lunch["status"] == "AWAITING"):
                     message_TXT += emojize("🛒 ")
-                elif (meal["status"] == "OK_AWAITING"):
+                elif (lunch["status"] == "OK_AWAITING"):
                     message_TXT += emojize("✅ ")
-                elif (meal["status"] == "FAILED"):
+                elif (lunch["status"] == "FAILED"):
                     message_TXT += emojize("❌ ")
 
-                message_TXT += meal["meal_name"]
+                message_TXT += lunch["meal_name"]
                 message_TXT += '\n'
-                # message_TXT += meal["status"]
+
+            if (row["dinner_arr"] and row["lunch_arr"]):
+                message_TXT += "*****\n"
+            # Dinner:
+            if(row["dinner_arr"]):
+                message_TXT += "شام:"
+                message_TXT += "\n"
+            for dinner in row["dinner_arr"]:
+
+                # message_TXT += "------------------\n"
+                if (dinner["status"] == "OK_DONE"):
+                    message_TXT += emojize("✅ ")
+                elif (dinner["status"] == "AWAITING"):
+                    message_TXT += emojize("🛒 ")
+                elif (dinner["status"] == "OK_AWAITING"):
+                    message_TXT += emojize("✅ ")
+                elif (dinner["status"] == "FAILED"):
+                    message_TXT += emojize("❌ ")
+
+                message_TXT += dinner["meal_name"]
+                message_TXT += '\n'
+
         return message_TXT
     except:
         bot.send_message(userID,MSGs.we_cant_do_it_now)
@@ -469,26 +514,52 @@ def extract_DINING_next_weeks_data(userID,PLCnum):
 
         message_TXT = ""
         bot.send_message(userID, "هفته بعد:")
-        for row in temp_data["Table"]:
+        for row in temp_data["COMPLETE_TABLE"]:
             message_TXT += "==================\n"
             message_TXT += row["day"] + '-' + row["date"]
             message_TXT += "\n"
             # print "row:\n",row
-            for meal in row["meal_arr"]:
 
-                message_TXT += "------------------\n"
-                if (meal["status"] == "OK_DONE"):
+            # Lunch:
+            if (row["lunch_arr"]):
+                message_TXT += "ناهار:"
+                message_TXT += "\n"
+            for lunch in row["lunch_arr"]:
+
+                # message_TXT += "------------------\n"
+                if(lunch["status"] == "OK_DONE"):
                     message_TXT += emojize("✅ ")
-                elif (meal["status"] == "AWAITING"):
+                elif (lunch["status"] == "AWAITING"):
                     message_TXT += emojize("🛒 ")
-                elif (meal["status"] == "OK_AWAITING"):
+                elif (lunch["status"] == "OK_AWAITING"):
                     message_TXT += emojize("✅ ")
-                elif (meal["status"] == "FAILED"):
+                elif (lunch["status"] == "FAILED"):
                     message_TXT += emojize("❌ ")
 
-                message_TXT += meal["meal_name"]
+                message_TXT += lunch["meal_name"]
                 message_TXT += '\n'
-                # message_TXT += meal["status"]
+
+            if (row["dinner_arr"] and row["lunch_arr"]):
+                message_TXT += "*****\n"
+            # Dinner:
+            if(row["dinner_arr"]):
+                message_TXT += "شام:"
+                message_TXT += "\n"
+            for dinner in row["dinner_arr"]:
+
+                # message_TXT += "------------------\n"
+                if (dinner["status"] == "OK_DONE"):
+                    message_TXT += emojize("✅ ")
+                elif (dinner["status"] == "AWAITING"):
+                    message_TXT += emojize("🛒 ")
+                elif (dinner["status"] == "OK_AWAITING"):
+                    message_TXT += emojize("✅ ")
+                elif (dinner["status"] == "FAILED"):
+                    message_TXT += emojize("❌ ")
+
+                message_TXT += dinner["meal_name"]
+                message_TXT += '\n'
+
         bot.send_message(userID,message_TXT)
         return None
     except:
@@ -611,7 +682,8 @@ def order_meal_next_week(userID,PLCnum):
             bot.send_message(userID,tmp_MSG)
             tmp_MSG = "ممکن هست در فرآیند سفارش بعضی از وعده‌ها گرفته نشه."
             bot.send_message(userID, tmp_MSG)
-        user_meal_menu[userID] = temp_data["Table"]
+
+        user_meal_menu[userID] = temp_data["COMPLETE_TABLE"]
         users_book[userID]["state"] = 0
         user_order_list[userID]={}
         user_order_list[userID]["PLCnum"] = PLCnum
@@ -625,32 +697,54 @@ def ask_to_choose_meal(userID):
         Markup = types.InlineKeyboardMarkup(row_width=1)
         message_TXT = ""
 
-        while users_book[userID]["state"] < 7:# 7 days a week (starts from 0)
+        while users_book[userID]["state"] < 14:# 7 days a week for lunch and 7 days for dinner (starts from 0)
             message_TXT = "انتخاب کنید:\n"
-            focused_row = users_book[userID]["state"]
+            focused_row = users_book[userID]["state"] % 7
 
             message_TXT += user_meal_menu[userID][focused_row]["day"]
             message_TXT += "\n"
             message_TXT += user_meal_menu[userID][focused_row]["date"]
 
-            something_to_order = False
-            for idx,elem in enumerate(user_meal_menu[userID][focused_row]["meal_arr"]):
-                if(elem["status"] == "AWAITING"):
+            if users_book[userID]["state"] < 7:
+                message_TXT += "\n"
+                message_TXT += "وعده ناهار:"
+                something_to_order = False
+                for idx,elem in enumerate(user_meal_menu[userID][focused_row]["lunch_arr"]):
+                    if(elem["status"] == "AWAITING"):
+                        Markup.add(types.InlineKeyboardButton(
+                            elem["meal_name"],
+                            callback_data=str(idx)))
+                        something_to_order = True
+
+                if(something_to_order):
                     Markup.add(types.InlineKeyboardButton(
-                        elem["meal_name"],
-                        callback_data=str(idx)))
-                    something_to_order = True
+                        "نمی‌خوام",
+                        callback_data="nevermind"))
+                    break
+                else:
+                    users_book[userID]["state"] = users_book[userID]["state"] + 1
+                    continue
+            elif users_book[userID]["state"] < 14:
+                message_TXT += "\n"
+                message_TXT += "وعده شام:"
+                something_to_order = False
+                for idx, elem in enumerate(user_meal_menu[userID][focused_row]["dinner_arr"]):# TODO replace all the meal_arrs with dinner_arr or lunch_arr
+                    if (elem["status"] == "AWAITING"):
+                        Markup.add(types.InlineKeyboardButton(
+                            elem["meal_name"],
+                            callback_data=str(idx)))
+                        something_to_order = True
 
-            if(something_to_order):
-                Markup.add(types.InlineKeyboardButton(
-                    "نمی‌خوام",
-                    callback_data="nevermind"))
-                break
-            else:
-                users_book[userID]["state"] = users_book[userID]["state"] + 1
-                continue
+                if (something_to_order):
+                    Markup.add(types.InlineKeyboardButton(
+                        "نمی‌خوام",
+                        callback_data="nevermind"))
+                    break
+                else:
+                    users_book[userID]["state"] = users_book[userID]["state"] + 1
+                    continue
 
-        if(users_book[userID]["state"] == 7):# process the request here
+        if(users_book[userID]["state"] == 14):# process the request here
             users_book[userID]["state"] = None
             bot.send_message(userID, "در حال ثبت درخواست...")
             # processing the request:

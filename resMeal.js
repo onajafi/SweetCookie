@@ -102,9 +102,20 @@ casper.then(function() {
         if(order_list[key] == "nevermind"){
             return;
         }
-        var cart_button_selector = 'tr:nth-child(' + (Number(key) + 1)
-            + ') > td.text-right > div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + (Number(order_list[key]) + 1)
+        //Find out if this is a lunch or dinner:
+        var column;
+        if(Number(key) < 7){
+            column = '2';
+            var cart_button_selector = 'tr:nth-child(' + (Number(key) + 1)
+            + ') > td:nth-child('+ column +') > div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + (Number(order_list[key]) + 1)
             + ') > span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip';
+        }else{
+            column = '3';
+            var cart_button_selector = 'tr:nth-child(' + (Number(key) -6)
+            + ') > td:nth-child('+ column +') > div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + (Number(order_list[key]) + 1)
+            + ') > span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip';
+        }
+
 
         if(ref.exists(cart_button_selector)) {
             ref.thenClick(cart_button_selector);
