@@ -17,7 +17,7 @@ https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-di
 
 Checkout this link for setup instructions:
 
-https://gist.github.com/andrewslince/4e5f9aba78e175d8fab1
+https://gist.github.com/onajafi/60499a2a7749fe4af4fa19d2b377bc08
 
 ### Telegram API python library
 
