@@ -461,14 +461,14 @@ casper.then(function() {
         }
     })
     .thenOpen("http://dining.sharif.edu/admin/food/food-reserve/reserve")
-    // .then(function() { TODO uncomment this at the end
-    //     this.evaluate(function (row_value) {
-    //         var form = document.querySelector('select#foodreservesdefineform-self_id');
-    //         form.selectedIndex = row_value;
-    //         $(form).val(row_value).change();
-    //
-    //     }, parsed_input_JSON["PLCnum"]);
-    // })
+    .then(function() { //TODO uncomment this at the end
+        this.evaluate(function (row_value) {
+            var form = document.querySelector('select#foodreservesdefineform-self_id');
+            form.selectedIndex = row_value;
+            $(form).val(row_value).change();
+
+        }, parsed_input_JSON["PLCnum"]);
+    })
     // .then(function(){
     //     for(var i=0;i<10;i++) {//wait for 10 secs in total
     //       // this.waitFor(1000);
@@ -489,24 +489,24 @@ casper.then(function() {
     .then(function(){
         tmp_DIC = get_ALL_priority_in_previous_weeks(this,10);
     })
-    .then(function(){// Sorting
-        // Create items array
-        var items = Object.keys(tmp_DIC).map(function(key) {
-          return [key, tmp_DIC[key]];
-        });
-
-        // Sort the array based on the second element
-        items.sort(function(first, second) {
-          return second[1] - first[1];
-        });
-
-        for(var i=0;i<items.length;i++) {
-            this.echo(items[i]);
-        }
-        output_for_JSON["Priority"] = items;
+    .then(function(){
+        // // Sorting
+        // // Create items array
+        // var items = Object.keys(tmp_DIC).map(function(key) {
+        //   return [key, tmp_DIC[key]];
+        // });
+        //
+        // // Sort the array based on the second element
+        // items.sort(function(first, second) {
+        //   return second[1] - first[1];
+        // });
+        //
+        // for(var i=0;i<items.length;i++) {
+        //     this.echo(items[i]);
+        // }
+        output_for_JSON["Meal_Points"] = tmp_DIC;
     })
     .then(function(){
-
 
         this.capture('navigation.png');
 
