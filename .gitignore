@@ -4,4 +4,8 @@
 test*
 
 
+tmp/*
+*.sqlite
+error.txt
+
 /.project
