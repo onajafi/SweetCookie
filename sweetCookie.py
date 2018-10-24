@@ -8,7 +8,8 @@ import dataBase
 import trafficController
 import threading, datetime
 
-#TODO add a howtouse command
+#TODO fix the fcode for dining
+#TODO clean the files
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
@@ -19,6 +20,15 @@ def send_welcome(message):
         print dataBase.check_the_user_in_DB(message)
         users.clear_PLCs(message.chat.id)
         trafficController.finished_process(message.chat.id,'start')
+
+@bot.message_handler(commands=['help'])
+def COMM_fcode(message):
+    check = trafficController.check_spam(message.chat.id, 'COMM_help')
+    if check == "OK":
+        response = users.send_commandlist(message.chat.id)
+        if response is not None:
+            bot.send_message(message.chat.id, response)
+        trafficController.finished_process(message.chat.id, 'COMM_help')
 
 @bot.message_handler(commands=['fcode'])
 def COMM_fcode(message):
@@ -55,6 +65,15 @@ def COMM_ordermeal(message):
         if response is not None:
             bot.send_message(message.chat.id, response)
         trafficController.finished_process(message.chat.id, 'COMM_ordermeal')
+
+@bot.message_handler(commands=['test'])
+def COMM_ordermeal(message):
+    check = trafficController.check_spam(message.chat.id, 'COMM_get_pri')
+    if check == "OK":
+        response = users.STARTget_priority(message.chat.id)
+        if response is not None:
+            bot.send_message(message.chat.id, response)
+        trafficController.finished_process(message.chat.id, 'COMM_get_pri')
 
 @bot.message_handler(commands=['feedback'])
 def COMM_feedback(message):
@@ -100,7 +119,6 @@ def test_callback(call):
     # print "response: " + str(response)
     if response is not None:
         bot.send_message(call.from_user.id, response)
-
 
 
 

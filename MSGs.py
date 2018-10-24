@@ -9,10 +9,18 @@ enter_userpass_markup = types.InlineKeyboardMarkup(row_width=1)
 enter_userpass_markup.add(types.InlineKeyboardButton('ورود اطلاعات کاربری',callback_data='UserPass'))
 
 get_forgotten_code = types.InlineKeyboardMarkup(row_width=1)
-get_forgotten_code.add(types.InlineKeyboardButton('گرفتن کد فراموشی',callback_data='FCode'))
+get_forgotten_code.add(types.InlineKeyboardButton('دریافت کد فراموشی',callback_data='FCode'))
 
 reserve_time_markup = types.InlineKeyboardMarkup(row_width=1)
 reserve_time_markup.add(types.InlineKeyboardButton('رزرو هفته بعد',callback_data='OrderNextWeek'))
+
+simple_MAIN_markup = types.ReplyKeyboardMarkup()
+simple_BTN_res = types.KeyboardButton('رزرو هفته بعد')
+simple_BTN_Show_This_week = types.KeyboardButton('نمایش هفته جاری')
+simple_BTN_FCode = types.KeyboardButton('دریافت کد فراموشی')
+simple_BTN_ADV = types.KeyboardButton('لیست دستورات')
+simple_MAIN_markup.row(simple_BTN_res,simple_BTN_Show_This_week)
+simple_MAIN_markup.row(simple_BTN_FCode,simple_BTN_ADV)
 
 greetings = """سلام،
 این بات برای سهولت رزرو از سایت dining.sharif.edu ساخته شده است.
@@ -27,7 +35,7 @@ give_pass = "رمز را وارد کنید" \
 your_password_is_wrong = """رمز یا نام کاربری اشتباه می‌باشد.
 مجددا اطلاعات کاربری را وارد کنید."""
 
-trying_to_enter= "در حال ورود...(2min)"
+trying_to_enter= "در حال اتصال به وبگاه...(2min)"
 
 trying_to_enter_next_week= "در حال دریافت برنامه هفته بعد...(2min)"
 
@@ -59,5 +67,17 @@ no_selected_PLCs = "هنوز جایی برای تحویل وعده غذایی م
 
 select_PLC = "محل را انتخاب کنید:"
 
+how_to_use = """لیست کامل دستورات:
+/ordermeal - رزرو هفته بعد
 
+/nextweek - نمایش برنامه غذایی هفته بعد
 
+/thisweek - نمایش برنامه غذایی هفته جاری
+
+/fcode - دریافت کد فراموشی
+
+/feedback - ارسال نظر
+
+/set_places - انتخاب محل(های) دریافت وعده غذایی
+"""
+lets_start = "انتخاب کنید"

@@ -7,6 +7,7 @@ from inits import bot,feedBack_target_chat
 import dataBase
 import sqlite3
 import traceback
+import MSGs
 
 # Enter the message here:
 MSG = """سلام،
@@ -44,7 +45,8 @@ with sqlite3.connect("users.sqlite") as conn:
             crashes = crashes + 1
             traceback.print_exc()
             try:# Added this to make sure every thing is running as smooth as possible
-                bot.send_message(feedBack_target_chat,"This guy made the bot crash:\n" + str(elem[0]))
+                bot.send_message(feedBack_target_chat,"This guy made the bot crash:\n" + str(elem[0]),
+                                 reply_markup = MSGs.simple_MAIN_markup) #remove this markup after the first announcement
             except:
                 pass
 

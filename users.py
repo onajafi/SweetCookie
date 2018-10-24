@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
+import operator
 
 import MSGs,scriptCaller
 import trafficController
@@ -78,7 +79,7 @@ def process_user_MSG(userID, message_TXT,message):
             if check == "OK":
                 users_book[userID]["pass"] = message_TXT
                 users_book[userID]["state"] = None
-                tmp_MSG = this_week_data(userID)
+                tmp_MSG = extract_DINING_places(userID)
                 trafficController.finished_process(userID, "SCRIPT")
                 return tmp_MSG
         elif(users_book[userID]["state"] == "FeedBack"):
@@ -95,6 +96,34 @@ def process_user_MSG(userID, message_TXT,message):
             bot.send_message(tmp_resp_ID,message_TXT)
             bot.send_message(feedBack_target_chat, "Sent :)")
             users_book[userID]["state"] = None
+        elif(message_TXT == 'رزرو هفته بعد'): # just like /ordermeal
+            check = trafficController.check_spam(userID, 'COMM_ordermeal')
+            if check == "OK":
+                response = STARTorder_meal(userID)
+                if response is not None:
+                    bot.send_message(userID, response)
+                trafficController.finished_process(userID, 'COMM_ordermeal')
+        elif(message_TXT == 'نمایش هفته جاری'): # just like /thisweek
+            check = trafficController.check_spam(userID, 'COMM_thisweek')
+            if check == "OK":
+                response = this_week_data(userID)
+                if response is not None:
+                    bot.send_message(userID, response)
+                trafficController.finished_process(userID, 'COMM_thisweek')
+        elif(message_TXT == 'دریافت کد فراموشی'): # just like /fcode
+            check = trafficController.check_spam(userID, 'COMM_fcode')
+            if check == "OK":
+                response = forgotten_code(userID)
+                if response is not None:
+                    bot.send_message(userID, response)
+                trafficController.finished_process(userID, 'COMM_fcode')
+        elif(message_TXT == 'لیست دستورات'):
+            check = trafficController.check_spam(userID, 'COMM_help')
+            if check == "OK":
+                response = send_commandlist(userID)
+                if response is not None:
+                    bot.send_message(userID, response)
+                trafficController.finished_process(userID, 'COMM_help')
         else:
             pass
     except:
@@ -199,6 +228,7 @@ def process_user_call(userID,call_TXT,ACT_call):
                     types.InlineKeyboardButton(emojize(emoji_check + temp_PLC[elem]), callback_data="PLC_" + elem))
             PLCs_markup.add(types.InlineKeyboardButton("تموم", callback_data="PLC_DONE"))
             bot.edit_message_reply_markup(userID,ACT_call.message.message_id,reply_markup=PLCs_markup)
+
         elif(call_TXT == "PLC_DONE"):
             temp_PLC = users_PLCs[userID]
             temp_selected_PLCs = users_selected_PLCs[userID]
@@ -214,6 +244,7 @@ def process_user_call(userID,call_TXT,ACT_call):
                 temp_MSG = "جایی برای تحویل وعده انتخاب نشده... :("
 
             bot.edit_message_text(temp_MSG,userID,ACT_call.message.message_id, reply_markup=MSGs.none_markup)
+            bot.send_message(userID,MSGs.lets_start,reply_markup = MSGs.simple_MAIN_markup)
 
         elif(call_NEXT_WEEK_pattern.match(call_TXT)):
             PLC_number = re.search('[0-9]{1,2}', call_TXT).group(0)
@@ -272,6 +303,15 @@ def update_DINING_UserPass(userID,username_DINING,password_DINING):
     except:
         bot.send_message(userID, MSGs.we_cant_do_it_now)
         Error_Handle.log_error("ERROR: users.update_DINING_UserPass")
+        return
+
+
+def send_commandlist(userID):
+    try:
+        bot.send_message(userID, MSGs.how_to_use)
+    except:
+        bot.send_message(userID, MSGs.we_cant_do_it_now)
+        Error_Handle.log_error("ERROR: users.send_commandlist")
         return
 
 
@@ -792,6 +832,81 @@ def wait_for_feedback(userID):
     except:
         bot.send_message(userID, MSGs.we_cant_do_it_now)
         Error_Handle.log_error("ERROR: users.wait_for_feedback")
+        return
+
+def STARTget_priority(userID):
+    try:
+        selected_PLCs = get_selected_PLCs(userID)
+
+        if(len(selected_PLCs)>1):#It's not empty
+            tmp_PLCs = users_PLCs[userID]
+
+            # PLCs_markup = types.InlineKeyboardMarkup(row_width=1)
+            # for elem in selected_PLCs:
+            #     PLCs_markup.add(types.InlineKeyboardButton(tmp_PLCs[elem], callback_data="PRI_"+ elem))
+            #
+            # bot.send_message(userID, "محلی که وعده ناهار را دریافت می‌کنید، انتخاب کنید:",reply_markup = PLCs_markup)
+
+            trafficController.drop_check(userID)
+            check = trafficController.check_spam(userID, 'get_pri')
+            if check == "OK":
+                response = extract_DINING_priority(userID,
+                                                          selected_PLCs[0])
+                if response is not None:
+                    bot.send_message(userID, response)
+                trafficController.finished_process(userID, 'get_pri')
+
+        elif (len(selected_PLCs) == 1):
+            trafficController.drop_check(userID)
+            check = trafficController.check_spam(userID, 'get_pri')
+            if check == "OK":
+                response = extract_DINING_priority(userID,
+                                                          selected_PLCs[0])
+                if response is not None:
+                    bot.send_message(userID, response)
+                trafficController.finished_process(userID, 'get_pri')
+        else:
+            bot.send_message(userID, MSGs.no_selected_PLCs)
+
+    except:
+        bot.send_message(userID,MSGs.we_cant_do_it_now)
+        Error_Handle.log_error("ERROR: users.STARTget_priority")
+        return
+def extract_DINING_priority(userID,PLCnum):
+    try:
+        attempts = 1
+        while attempts <= 3:
+            bot.send_message(userID, MSGs.trying_to_enter)
+            temp_data = scriptCaller.get_user__DINING_priority_list(users_book[userID]["user"],
+                                                          users_book[userID]["pass"],
+                                                          userID,
+                                                          PLCnum)
+            print str(temp_data)
+            if (temp_data["ENTRY_STATE"] == "BAD"):
+                bot.send_message(userID, MSGs.trying_again)
+                attempts = attempts + 1
+                continue
+            else:
+                break
+        if (temp_data["ENTRY_STATE"] == "BAD"):
+            return MSGs.cant_do_it_now
+
+        if (temp_data["PASSWORD_STATE"] == "WRONG"):
+            return MSGs.your_password_is_wrong
+
+        message_TXT = ""
+        print ":::;;;:::"
+        print temp_data["Meal_Points"]
+        sorted_data = sorted(temp_data["Meal_Points"].items(), key=operator.itemgetter(1),reverse=True)
+        for idx,elem in enumerate(sorted_data):
+            message_TXT += str(idx) + '. ' + elem[0] + ': ' + str(elem[1])
+            message_TXT += '\n'
+
+        bot.send_message(userID,message_TXT)
+        return None
+    except:
+        bot.send_message(userID, MSGs.we_cant_do_it_now)
+        Error_Handle.log_error("ERROR: users.extract_DINING_priority")
         return
 
 
