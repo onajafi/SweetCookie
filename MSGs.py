@@ -2,6 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from telebot import types
+from emoji import emojize
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 none_markup = types.InlineKeyboardMarkup(row_width=1)
 
@@ -15,10 +19,10 @@ reserve_time_markup = types.InlineKeyboardMarkup(row_width=1)
 reserve_time_markup.add(types.InlineKeyboardButton('رزرو هفته بعد',callback_data='OrderNextWeek'))
 
 simple_MAIN_markup = types.ReplyKeyboardMarkup()
-simple_BTN_res = types.KeyboardButton('رزرو هفته بعد')
-simple_BTN_Show_This_week = types.KeyboardButton('نمایش هفته جاری')
-simple_BTN_FCode = types.KeyboardButton('دریافت کد فراموشی')
-simple_BTN_ADV = types.KeyboardButton('لیست دستورات')
+simple_BTN_res = types.KeyboardButton(emojize('رزرو هفته بعد:telephone:', use_aliases=True))
+simple_BTN_Show_This_week = types.KeyboardButton(emojize('نمایش هفته جاری:chart_with_downwards_trend:', use_aliases=True))
+simple_BTN_FCode = types.KeyboardButton(emojize('دریافت کد فراموشی:u6307:', use_aliases=True))
+simple_BTN_ADV = types.KeyboardButton(emojize('لیست دستورات:ledger:', use_aliases=True))
 simple_MAIN_markup.row(simple_BTN_res,simple_BTN_Show_This_week)
 simple_MAIN_markup.row(simple_BTN_FCode,simple_BTN_ADV)
 

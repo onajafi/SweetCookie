@@ -68,12 +68,13 @@ def COMM_ordermeal(message):
 
 @bot.message_handler(commands=['test'])
 def COMM_ordermeal(message):
-    check = trafficController.check_spam(message.chat.id, 'COMM_get_pri')
-    if check == "OK":
-        response = users.STARTget_priority(message.chat.id)
-        if response is not None:
-            bot.send_message(message.chat.id, response)
-        trafficController.finished_process(message.chat.id, 'COMM_get_pri')
+    # check = trafficController.check_spam(message.chat.id, 'COMM_get_pri')
+    # if check == "OK":
+    #     response = users.STARTget_priority(message.chat.id)
+    #     if response is not None:
+    #         bot.send_message(message.chat.id, response)
+    #     trafficController.finished_process(message.chat.id, 'COMM_get_pri')
+    bot.send_message(message.chat.id,"test",reply_markup=MSGs.simple_MAIN_markup)
 
 @bot.message_handler(commands=['feedback'])
 def COMM_feedback(message):

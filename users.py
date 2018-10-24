@@ -96,28 +96,28 @@ def process_user_MSG(userID, message_TXT,message):
             bot.send_message(tmp_resp_ID,message_TXT)
             bot.send_message(feedBack_target_chat, "Sent :)")
             users_book[userID]["state"] = None
-        elif(message_TXT == 'رزرو هفته بعد'): # just like /ordermeal
+        elif(message_TXT == emojize('رزرو هفته بعد:telephone:', use_aliases=True)): # just like /ordermeal
             check = trafficController.check_spam(userID, 'COMM_ordermeal')
             if check == "OK":
                 response = STARTorder_meal(userID)
                 if response is not None:
                     bot.send_message(userID, response)
                 trafficController.finished_process(userID, 'COMM_ordermeal')
-        elif(message_TXT == 'نمایش هفته جاری'): # just like /thisweek
+        elif(message_TXT == emojize('نمایش هفته جاری:chart_with_downwards_trend:', use_aliases=True)): # just like /thisweek
             check = trafficController.check_spam(userID, 'COMM_thisweek')
             if check == "OK":
                 response = this_week_data(userID)
                 if response is not None:
                     bot.send_message(userID, response)
                 trafficController.finished_process(userID, 'COMM_thisweek')
-        elif(message_TXT == 'دریافت کد فراموشی'): # just like /fcode
+        elif(message_TXT == emojize('دریافت کد فراموشی:u6307:', use_aliases=True)): # just like /fcode
             check = trafficController.check_spam(userID, 'COMM_fcode')
             if check == "OK":
                 response = forgotten_code(userID)
                 if response is not None:
                     bot.send_message(userID, response)
                 trafficController.finished_process(userID, 'COMM_fcode')
-        elif(message_TXT == 'لیست دستورات'):
+        elif(message_TXT == emojize('لیست دستورات:ledger:', use_aliases=True)):
             check = trafficController.check_spam(userID, 'COMM_help')
             if check == "OK":
                 response = send_commandlist(userID)
