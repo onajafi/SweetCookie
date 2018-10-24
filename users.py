@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import operator
 
-import MSGs,scriptCaller
+import MSGs,scriptCaller,local_time
 import trafficController
 from inits import bot,feedBack_target_chat
 from emoji import emojize
@@ -344,13 +344,19 @@ def forgotten_code(userID):
         return
 def get_DINING_forgotten_code(userID,PLCnum):
     try:
+        meal_type = ""
+        if(local_time.IsDinnerTime()):
+            meal_type = "شام"
+        else:
+            meal_type = "ناهار"
+
         attempts = 1
         while attempts <= 3:
-            bot.send_message(userID, MSGs.trying_to_enter)
+            bot.send_message(userID,"در حال دریافت کد فراموشی وعده " + meal_type)
             temp_data = scriptCaller.get_user_DINING_forgotten_code(users_book[userID]["user"],
                                                           users_book[userID]["pass"],
                                                           userID,
-                                                          PLCnum)
+                                                          PLCnum)#TODO add this option to give the dinner OR lunch
             print temp_data
             if(temp_data == None):
                 bot.send_message(userID,MSGs.we_cant_do_it_now)

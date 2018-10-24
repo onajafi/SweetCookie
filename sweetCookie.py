@@ -8,8 +8,8 @@ import dataBase
 import trafficController
 import threading, datetime
 
-#TODO fix the fcode for dining
-#TODO clean the files
+#TODO fix the fcode for dinner
+#TODO clean the files in the repo
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
