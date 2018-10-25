@@ -78,8 +78,12 @@ def get_user_next_week_DINING_data(username,password,chat_id,PLCnum):
     # os.remove('tmp/' + input_file_name)
     return data
 
-def get_user_DINING_forgotten_code(username,password,chat_id,PLCnum):
-    input_data = {"pass": password, "user": username, "chat_id": chat_id, "PLCnum":PLCnum}
+def get_user_DINING_forgotten_code(username,password,chat_id,PLCnum,meal_type):
+    input_data = {"pass": password,
+                  "user": username,
+                  "chat_id": chat_id,
+                  "PLCnum":PLCnum,
+                  "meal_type":meal_type}
     input_file_name = 'input_GFC_' + str(chat_id) + '.json'
     with open('tmp/' + input_file_name, 'w') as outfile:
         json.dump(input_data, outfile)

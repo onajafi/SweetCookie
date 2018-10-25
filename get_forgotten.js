@@ -77,6 +77,17 @@ casper.then(function() {
     });
   })
   .then(function(){
+    if(parsed_input_JSON["meal_type"] == "dinner") {
+        this.echo("PPPPPPP");
+        this.echo(this.getHTML('select#foodforgottencodesform-food_meal_id'));
+        this.evaluate(function () {
+            var form = document.querySelector('select#foodforgottencodesform-food_meal_id');
+            form.selectedIndex = 2;
+            $(form).val(2).change();
+        });
+    }
+  })
+  .then(function(){
       for(var i=0;i<10;i++) {//wait for 10 secs in total
           this.wait(1000, function () {});
           if(this.exists('button#get_forgotten_code_button')){

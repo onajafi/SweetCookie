@@ -346,17 +346,21 @@ def get_DINING_forgotten_code(userID,PLCnum):
     try:
         meal_type = ""
         if(local_time.IsDinnerTime()):
-            meal_type = "شام"
+            meal_type = "dinner"
         else:
-            meal_type = "ناهار"
+            meal_type = "lunch"
 
         attempts = 1
         while attempts <= 3:
-            bot.send_message(userID,"در حال دریافت کد فراموشی وعده " + meal_type)
+            if(meal_type == "dinner"):
+                bot.send_message(userID,"در حال دریافت کد فراموشی وعده شام")
+            elif(meal_type == "lunch"):
+                bot.send_message(userID, "در حال دریافت کد فراموشی وعده ناهار")
             temp_data = scriptCaller.get_user_DINING_forgotten_code(users_book[userID]["user"],
                                                           users_book[userID]["pass"],
                                                           userID,
-                                                          PLCnum)#TODO add this option to give the dinner OR lunch
+                                                          PLCnum,
+                                                          meal_type)
             print temp_data
             if(temp_data == None):
                 bot.send_message(userID,MSGs.we_cant_do_it_now)
