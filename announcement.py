@@ -11,13 +11,9 @@ import MSGs
 
 # Enter the message here:
 MSG = """سلام،
-آپدیت ۰.۶:
--یکم روی UI کار شده (با تشکر فراوان از محمدرضا دانشور)
--اضافه کردن دریافت کد فراموشی شام (ممنون از شهروز)
-
-چند تا آپدیت دیگه مونده تا ریلیز نهایی :دی
-
-"""
+در آپدیت آخر قرار بود یک سری صفحه کلید برای راحتی کار با بات اضافه بشه ولی این قابلیت برای برخی از کاربرها فعال نشد.
+اما الان باید درست شده باشه.
+بابت خطای پیش اومده عذرخواهی بنده را بپذیرید."""
 
 with sqlite3.connect("users.sqlite") as conn:
     cur = conn.cursor()
@@ -28,15 +24,14 @@ with sqlite3.connect("users.sqlite") as conn:
     crashes = 0
     for elem in DB_table:
         try:
-            bot.send_message(elem[0],MSG)
+            bot.send_message(elem[0],MSG,reply_markup = MSGs.simple_MAIN_markup)
             success = success + 1
         except:
             print '--------'
             crashes = crashes + 1
             traceback.print_exc()
             try:# Added this to make sure every thing is running as smooth as possible
-                bot.send_message(feedBack_target_chat,"This guy made the bot crash:\n" + str(elem[0]),
-                                 reply_markup = MSGs.simple_MAIN_markup) #remove this markup after the first announcement
+                bot.send_message(feedBack_target_chat,"This guy made the bot crash:\n" + str(elem[0])) #remove this markup after the first announcement
             except:
                 pass
 
