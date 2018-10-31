@@ -24,8 +24,9 @@ with sqlite3.connect("users.sqlite") as conn:
     crashes = 0
     for elem in DB_table:
         try:
-            bot.send_message(elem[0],MSG,reply_markup = MSGs.simple_MAIN_markup)
-            success = success + 1
+            if(elem[0] == feedBack_target_chat):
+                bot.send_message(elem[0],MSG,reply_markup = MSGs.simple_MAIN_markup)
+                success = success + 1
         except:
             print '--------'
             crashes = crashes + 1
