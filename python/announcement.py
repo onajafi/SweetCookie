@@ -15,7 +15,7 @@ MSG = """سلام،
 اما الان باید درست شده باشه.
 بابت خطای پیش اومده عذرخواهی بنده را بپذیرید."""
 
-with sqlite3.connect("users.sqlite") as conn:
+with sqlite3.connect("../users.sqlite") as conn:
     cur = conn.cursor()
     cur.execute("SELECT * FROM users")
     DB_table = cur.fetchall()

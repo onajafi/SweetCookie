@@ -7,7 +7,7 @@ casper.echo('The inputs:');
 casper.echo(casper.cli.args[0]);
 
 //reading the input file:
-var file_input = fs.read('tmp/'+casper.cli.args[0]);
+var file_input = fs.read('../tmp/'+casper.cli.args[0]);
 var parsed_input_JSON = JSON.parse(file_input)
 // require('utils').dump(parsed_JSON.pass);
 //----------------------
@@ -21,7 +21,7 @@ casper.start('http://dining.sharif.edu/login');
 
 function extract_json_file(){
     var output_filename = 'output_GFC_'+parsed_input_JSON.chat_id + '.json';//GFC Get Forgotten Code
-    fs.write('tmp/'+output_filename, JSON.stringify(output_for_JSON), 'w');
+    fs.write('../tmp/'+output_filename, JSON.stringify(output_for_JSON), 'w');
 }
 
 casper.then(function() {

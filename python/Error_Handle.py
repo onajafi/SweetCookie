@@ -4,12 +4,12 @@
 import traceback
 from inits import bot
 
-f = open('error.txt', 'w+')
+f = open('../error.txt', 'w+')
 f.close()
 
 def log_error(title):
     try:
-        f = open('error.txt', 'a')
+        f = open('../error.txt', 'a')
         f.write("\n\n\n" + str(title) + "-------------------\n")
         traceback.print_exc(file=f)
         f.close()

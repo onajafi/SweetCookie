@@ -9,7 +9,7 @@ casper.echo('The inputs:');
 casper.echo(casper.cli.args[0]);
 
 //reading the input file:
-var file_input = fs.read('tmp/'+casper.cli.args[0]);//extract_data_input.json
+var file_input = fs.read('../tmp/'+casper.cli.args[0]);//extract_data_input.json
 var parsed_input_JSON = JSON.parse(file_input)
 
 // require('utils').dump(parsed_JSON.pass);
@@ -404,7 +404,7 @@ function get_balance_info(ref){
 
 function extract_json_file(){
     var output_filename = 'output_PRI_'+parsed_input_JSON.chat_id + '.json';
-    fs.write('tmp/'+output_filename, JSON.stringify(output_for_JSON), 'w');
+    fs.write('../tmp/'+output_filename, JSON.stringify(output_for_JSON), 'w');
 }
 
 casper.start('http://dining.sharif.edu/login');
