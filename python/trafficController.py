@@ -10,10 +10,10 @@ last_user_msg = {}
 
 long_process = {"fcode",'CALL','ordermeal','thisweek','nextweek','fcode',
                 'CALL_UserPass','CALL_FCode','CALL_OrderNextWeek',"SCRIPT",
-                'set_places','get_pri'}
+                'set_places','get_pri','COMM_inc_credit'}
 
 short_process = {'start','text','COMM_nextweek','COMM_thisweek','COMM_fcode',
-                 'COMM_ordermeal','COMM_get_pri','COMM_help'}
+                 'COMM_ordermeal','COMM_get_pri','COMM_help','inc_credit'}
 
 
 #This function will check if a user is
@@ -46,7 +46,7 @@ def check_spam(userID,MSG_type):
 def finished_process(userID,MSG_type):
     if userID in last_user_msg.keys() and last_user_msg[userID][0]==MSG_type:
         del last_user_msg[userID]
-        print "++DELETED++"
+        print "++PROCESS FINISHED++"
 
 def drop_check(userID):
     if userID in last_user_msg.keys():

@@ -66,6 +66,15 @@ def COMM_ordermeal(message):
             bot.send_message(message.chat.id, response)
         trafficController.finished_process(message.chat.id, 'COMM_ordermeal')
 
+@bot.message_handler(commands=['inc_credit'])
+def test_FUNC(message):
+    check = trafficController.check_spam(message.chat.id, 'inc_credit')
+    if check == "OK":
+        response = users.STARTincreasing_credit(message.chat.id)
+        if response is not None:
+            bot.send_message(message.chat.id, response)
+        trafficController.finished_process(message.chat.id, 'inc_credit')
+
 @bot.message_handler(commands=['test'])
 def COMM_ordermeal(message):
     # check = trafficController.check_spam(message.chat.id, 'COMM_get_pri')

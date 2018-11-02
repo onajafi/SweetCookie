@@ -233,3 +233,43 @@ def get_user__DINING_priority_list(username,password,chat_id,PLCnum):
     # os.remove('../tmp/' + input_file_name)
     return data
 
+def get_user_DINING_inc_credit_link(username,password,chat_id,amount):
+
+    input_data = {"pass": password,
+                  "user": username,
+                  "chat_id": chat_id,
+                  "amount": amount}
+
+    input_file_name = 'input_INC_' + str(chat_id) + '.json'
+    with open('../tmp/' + input_file_name, 'w') as outfile:
+        json.dump(input_data, outfile)
+
+    try:
+        p = subprocess.Popen(['casperjs',webCrawlingScriptFolder + 'increase_credit.js', input_file_name])
+        print p.poll()
+        for i in range(120):
+            if (p.poll() is None):
+                time.sleep(1)
+    except:
+        p.send_signal(signal.SIGINT)
+        Error_Handle.log_error("SCRIPT ERROR: get_user_DINING_inc_credit_link")
+        print "Script KILLED"
+        return
+
+    if (p.poll() is None):
+        p.send_signal(signal.SIGINT)
+        print "CTRL+C The script didn't get completely finished"
+        return
+    print "--DONE--"
+
+    data = None
+    data_output_file_name = 'output_INC_' + str(chat_id) + '.json'
+    # --Reading the results--
+    with open('../tmp/' + data_output_file_name) as f:
+        data = json.load(f)
+
+    # os.remove('../tmp/' + data_output_file_name)
+    # os.remove('../tmp/' + input_file_name)
+    return data
+
+

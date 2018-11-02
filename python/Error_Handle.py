@@ -3,6 +3,7 @@
 
 import traceback
 from inits import bot
+import MSGs
 
 f = open('../error.txt', 'w+')
 f.close()
@@ -18,12 +19,14 @@ def log_error(title):
 
 
 # This is a function decorator to keep it from killing the hole bot when giving an error
-# def secure(FUNC):
-#     try:
-#
-#     except:
-#         bot.send_message(userID,MSGs.we_cant_do_it_now)
-#         log_error("ERROR: users.this_week_data")
-#         return
-
+# The Function (FUNC) has only 1 argument which is the userID
+def secure_from_exception(FUNC):
+    def output_FUNC(input_userID):
+        try:
+            FUNC(input_userID)
+        except:
+            bot.send_message(input_userID,MSGs.we_cant_do_it_now)
+            log_error("ERROR: " + FUNC.__name__)
+            return
+    return output_FUNC
 

@@ -32,6 +32,17 @@ call_NEXT_WEEK_pattern = re.compile("^NEXT_WEEK_[0-9]{1,2}$")
 call_THIS_WEEK_pattern = re.compile("^THIS_WEEK_[0-9]{1,2}$")
 call_FCODE_pattern = re.compile("^FCODE_[0-9]{1,2}$")
 call_ORDER_NEXT_WEEK_pattern = re.compile("^ORDER_NEXT_WEEK_[0-9]{1,2}$")
+message_number = re.compile("^[0-9]*$")
+
+def FA_UNI_to_EN_DIGIT_CONV(FAnumber):
+    ENnumber = ""
+    # uniFAnum = unicode(FAnumber, "utf-32")
+    for dig in FAnumber:
+        try:
+            ENnumber = ENnumber + str(int(dig))
+        except:
+            pass
+    return ENnumber
 
 def add_user(userID):
     try:
@@ -96,6 +107,18 @@ def process_user_MSG(userID, message_TXT,message):
             bot.send_message(tmp_resp_ID,message_TXT)
             bot.send_message(feedBack_target_chat, "Sent :)")
             users_book[userID]["state"] = None
+        elif(users_book[userID]["state"] == "getIncCreditAmount"):
+            users_book[userID]["state"] = None
+            number_val = FA_UNI_to_EN_DIGIT_CONV(message_TXT)
+            if(message_number.match(number_val) and len(number_val) > 2):
+                check = trafficController.check_spam(userID, 'COMM_inc_credit')
+                if check == "OK":
+                    response = increase_DINING_credit(userID,number_val)
+                    if response is not None:
+                        bot.send_message(userID, response)
+                    trafficController.finished_process(userID, 'COMM_inc_credit')
+            else:
+                bot.send_message(userID,MSGs.didnt_get_the_credit_inc_amount)
         elif(message_TXT == emojize('رزرو هفته بعد:telephone:', use_aliases=True)): # just like /ordermeal
             check = trafficController.check_spam(userID, 'COMM_ordermeal')
             if check == "OK":
@@ -673,6 +696,50 @@ def get_selected_PLCs(userID):
         users_selected_PLCs[userID] = []
     return users_selected_PLCs[userID]
 
+@Error_Handle.secure_from_exception
+def STARTincreasing_credit(userID):
+    users_book[userID]["state"] = "getIncCreditAmount"
+    bot.send_message(userID,MSGs.How_much_credit)
+def increase_DINING_credit(userID,amount):
+    try:
+        attempts = 1
+        while attempts <= 3:
+            bot.send_message(userID, "در حال انتقال درخواست پرداخت")
+            temp_data = scriptCaller.get_user_DINING_inc_credit_link(users_book[userID]["user"],
+                                                          users_book[userID]["pass"],
+                                                          userID,
+                                                          amount)
+            print str(temp_data)
+            if (temp_data["ENTRY_STATE"] == "BAD"):
+                bot.send_message(userID, MSGs.trying_again)
+                attempts = attempts + 1
+                continue
+            else:
+                break
+        if (temp_data["ENTRY_STATE"] == "BAD"):
+            return MSGs.cant_do_it_now
+
+        if (temp_data["PASSWORD_STATE"] == "WRONG"):
+            return MSGs.your_password_is_wrong
+
+        message_TXT = "با انتخاب دکمه زیر وارد درگاه پرداخت دانشگاه شریف می‌شوید:"
+        message_TXT += '\n'
+        message_TXT += "میزان افزایش اعتبار: "
+        message_TXT += amount
+        message_TXT += " تومان"
+
+        print temp_data["URL"]
+
+        payBTN = types.InlineKeyboardMarkup(row_width=1)
+        payBTN.add(types.InlineKeyboardButton('ورود به درگاه پرداخت', url=temp_data["URL"]))
+
+        bot.send_message(userID,MSGs.payment_warning)
+        bot.send_message(userID,message_TXT,reply_markup=payBTN)
+        return None
+    except:
+        bot.send_message(userID, MSGs.we_cant_do_it_now)
+        Error_Handle.log_error("ERROR: users.increase_DINING_credit")
+        return
 
 def STARTorder_meal(userID):
     try:
