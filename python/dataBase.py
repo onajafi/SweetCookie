@@ -98,6 +98,34 @@ def get_users_selected_PLCs():
             output_users[elem[0]] = ast.literal_eval(elem[2])
         return output_users
 
+# Priorities:
+def update_PRI_LIST_database(userID,pri_list):
+    with sqlite3.connect("../users.sqlite") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM priority_list WHERE u_id=?",(userID,))
+        sample_test = cur.fetchone()
+        if sample_test == None:# we have a new priority list
+            conn.execute("INSERT INTO priority_list VALUES (?, ?);",
+                         (userID,
+                          str(pri_list)))
+            return False
+        else:# update the existing priority list of the user
+            conn.execute("UPDATE priority_list SET pri_arr=? WHERE u_id=?",
+                         (str(pri_list),
+                          userID))
+            return True
+
+def get_users_PRI_LIST():
+    with sqlite3.connect("../users.sqlite") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM priority_list")
+        DB_table = cur.fetchall()
+        print DB_table
+        output_pri_list = {}
+        for elem in DB_table:
+            output_pri_list[elem[0]] = ast.literal_eval(elem[1])
+        return output_pri_list
+
 with sqlite3.connect("../users.sqlite") as conn:
     cur = conn.cursor()
     cur.execute("CREATE TABLE IF NOT EXISTS users("
@@ -112,6 +140,9 @@ with sqlite3.connect("../users.sqlite") as conn:
                 "u_id MEDIUMINT, "
                 "PLCs TEXT, "
                 "selected_PLCs TEXT);")
+    cur.execute("CREATE TABLE IF NOT EXISTS priority_list("
+                "u_id MEDIUMINT, "
+                "pri_arr TEXT);")
 
     conn.commit()
 

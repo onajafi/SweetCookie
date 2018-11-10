@@ -30,3 +30,13 @@ def secure_from_exception(FUNC):
             return
     return output_FUNC
 
+def secure_from_exception_2input(FUNC):
+    def output_FUNC(input_userID,input_2nd):
+        try:
+            FUNC(input_userID,input_2nd)
+        except:
+            bot.send_message(input_userID,MSGs.we_cant_do_it_now)
+            log_error("ERROR: " + FUNC.__name__)
+            return
+    return output_FUNC
+

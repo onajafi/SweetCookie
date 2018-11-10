@@ -18,6 +18,7 @@ sys.setdefaultencoding('utf8')
 users_book = dataBase.get_users_book_from_database() # maps to a Dictionary
 users_PLCs = dataBase.get_users_PLCs_from_database() # maps to a Dictionary
 users_selected_PLCs = dataBase.get_users_selected_PLCs() # maps to a List
+users_pri_list = dataBase.get_users_PRI_LIST() # maps to a list
 print "initial vals:"
 print users_PLCs
 print users_selected_PLCs
@@ -911,11 +912,12 @@ def wait_for_feedback(userID):
         Error_Handle.log_error("ERROR: users.wait_for_feedback")
         return
 
+
 def STARTget_priority(userID):
     try:
         selected_PLCs = get_selected_PLCs(userID)
 
-        if(len(selected_PLCs)>1):#It's not empty
+        if(len(selected_PLCs)>1):#It's not empty #TODO think about this part...
             tmp_PLCs = users_PLCs[userID]
 
             # PLCs_markup = types.InlineKeyboardMarkup(row_width=1)
@@ -980,10 +982,86 @@ def extract_DINING_priority(userID,PLCnum):
             message_TXT += '\n'
 
         bot.send_message(userID,message_TXT)
+        dataBase.update_PRI_LIST_database(userID,sorted_data)
         return None
     except:
         bot.send_message(userID, MSGs.we_cant_do_it_now)
         Error_Handle.log_error("ERROR: users.extract_DINING_priority")
         return
 
+@Error_Handle.secure_from_exception
+def START_comm_to_test_auto_res(userID):# This is for testing the reserve
+    selected_PLCs = get_selected_PLCs(userID)
+
+    if (len(selected_PLCs) > 1):  # It's not empty #TODO think about this part...
+        tmp_PLCs = users_PLCs[userID]
+
+        # PLCs_markup = types.InlineKeyboardMarkup(row_width=1)
+        # for elem in selected_PLCs:
+        #     PLCs_markup.add(types.InlineKeyboardButton(tmp_PLCs[elem], callback_data="PRI_"+ elem))
+        #
+        # bot.send_message(userID, "محلی که وعده ناهار را دریافت می‌کنید، انتخاب کنید:",reply_markup = PLCs_markup)
+
+        trafficController.drop_check(userID)
+        check = trafficController.check_spam(userID, 'auto_res')
+        if check == "OK":
+            response = do_DINING_auto_reserve(userID,
+                                               selected_PLCs[0])
+            if response is not None:
+                bot.send_message(userID, response)
+            trafficController.finished_process(userID, 'auto_res')
+
+    elif (len(selected_PLCs) == 1):
+        trafficController.drop_check(userID)
+        check = trafficController.check_spam(userID, 'auto_res')
+        if check == "OK":
+            response = do_DINING_auto_reserve(userID,
+                                               selected_PLCs[0])
+            if response is not None:
+                bot.send_message(userID, response)
+            trafficController.finished_process(userID, 'auto_res')
+    else:
+        bot.send_message(userID, MSGs.no_selected_PLCs)
+@Error_Handle.secure_from_exception_2input
+def do_DINING_auto_reserve(userID,PLCnum):
+    # if(users_pri_list[userID] == None): #TODO complete this if you need it
+    #     bot.send_message(userID,)
+
+    #Turn the pri_list into a dictionary:
+    input_list = users_pri_list[userID]
+    the_dict = {}
+    for elem in input_list:
+        the_dict[elem[0]] = elem[1]
+
+    attempts = 1
+    while attempts <= 3:
+        bot.send_message(userID, MSGs.trying_to_enter)
+        temp_data = scriptCaller.auto_res_DINING_by_pri_list(users_book[userID]["user"],
+                                                                users_book[userID]["pass"],
+                                                                userID,
+                                                                PLCnum,
+                                                                the_dict)
+        print str(temp_data)
+        if (temp_data["ENTRY_STATE"] == "BAD"):
+            bot.send_message(userID, MSGs.trying_again)
+            attempts = attempts + 1
+            continue
+        else:
+            break
+    if (temp_data["ENTRY_STATE"] == "BAD"):
+        return MSGs.cant_do_it_now
+
+    if (temp_data["PASSWORD_STATE"] == "WRONG"):
+        return MSGs.your_password_is_wrong
+
+
+    return None
+
+
+def test(userID):
+    message = ""
+    for elem in users_pri_list[userID]:
+        message += elem[0] + '\n'
+
+    bot.send_message(userID,message)
 

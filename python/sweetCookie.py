@@ -75,6 +75,25 @@ def test_FUNC(message):
             bot.send_message(message.chat.id, response)
         trafficController.finished_process(message.chat.id, 'inc_credit')
 
+@bot.message_handler(commands=['set_auto_res'])
+def COMM_get_pri(message):
+    check = trafficController.check_spam(message.chat.id, 'COMM_get_pri')
+    if check == "OK":
+        response = users.STARTget_priority(message.chat.id)
+        if response is not None:
+            bot.send_message(message.chat.id, response)
+        trafficController.finished_process(message.chat.id, 'COMM_get_pri')
+
+@bot.message_handler(commands=['do_auto_res'])
+def COMM_get_pri(message):
+    check = trafficController.check_spam(message.chat.id, 'COMM_do_auto_res')
+    if check == "OK":
+        response = users.START_comm_to_test_auto_res(message.chat.id)
+        if response is not None:
+            bot.send_message(message.chat.id, response)
+        trafficController.finished_process(message.chat.id, 'COMM_do_auto_res')
+
+
 @bot.message_handler(commands=['test'])
 def COMM_ordermeal(message):
     # check = trafficController.check_spam(message.chat.id, 'COMM_get_pri')
@@ -83,7 +102,8 @@ def COMM_ordermeal(message):
     #     if response is not None:
     #         bot.send_message(message.chat.id, response)
     #     trafficController.finished_process(message.chat.id, 'COMM_get_pri')
-    bot.send_message(message.chat.id,"test",reply_markup=MSGs.simple_MAIN_markup)
+    # bot.send_message(message.chat.id,"test",reply_markup=MSGs.simple_MAIN_markup)
+    users.test(message.chat.id)
 
 @bot.message_handler(commands=['feedback'])
 def COMM_feedback(message):
