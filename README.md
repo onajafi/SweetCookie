@@ -49,7 +49,7 @@ Now you can run the script:
     cd SweetCookie/python
     python sweetcookie.py
 
-Run the code on the back ground so it will keep running on the server while your logged off:
+Run the code on the back ground so it will keep running on the server while you're logged off:
 
     python sweetcookie.py &
 

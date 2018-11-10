@@ -29,9 +29,12 @@ with sqlite3.connect("../users.sqlite") as conn:
         except:
             print '--------'
             crashes = crashes + 1
-            traceback.print_exc()
+            # traceback.print_exc()
             try:# Added this to make sure every thing is running as smooth as possible
-                bot.send_message(feedBack_target_chat,"This guy made the bot crash:\n" + str(elem[0])) #remove this markup after the first announcement
+                bot.send_message(feedBack_target_chat,"This guy blocked the bot:\n" +
+                                 str(elem[2]) + "\n" +
+                                 str(elem[3]) + "\n" +
+                                 str(elem[0])) #remove this markup after the first announcement
             except:
                 pass
 
