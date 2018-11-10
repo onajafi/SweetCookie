@@ -1,4 +1,4 @@
-# Dining Bot
+# Sweet Cookie
 A better way to reserve your meal in http://dining.sharif.edu/
 
 
@@ -39,14 +39,14 @@ Issue this command to get the script:
 In Telegram create your bot using [BotFather](https://core.telegram.org/bots#6-botfather).
 
 After getting your bots TOKEN, copy it and open 
-the ```inits.py``` file, then paste the token 
+the ```python/inits.py``` file, then paste the token 
 instead of ```<###THE BOTS TOKEN###>``` ,
 set the ```feedBack_target_chat``` variable a chat ID you like the feedbacks to be forwarded to,
  otherwise, just write 0.
 
 Now you can run the script:
 
-    cd SweetCookie/
+    cd SweetCookie/python
     python sweetcookie.py
 
 Run the code on the back ground so it will keep running on the server while your logged off:
