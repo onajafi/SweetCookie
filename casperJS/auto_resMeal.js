@@ -24,6 +24,9 @@ function order_in_row(ref,row_num){
     dinner_block_selector = 'table.table.sharif-table.table-bordered.table-condensed > tbody > tr:nth-child('+ row_num +') > td:nth-child(3)';
     date_selector = 'table.table.sharif-table.table-bordered.table-condensed > tbody > tr:nth-child('+ row_num +') > th';
 
+    var meal_num_with_max_point = 0;
+    var max_point;
+    var res_state = "NO_MEAL";
 
     //LUNCH
     lunch_arr = [];
@@ -32,35 +35,45 @@ function order_in_row(ref,row_num){
         for(var i=1;;i++) {
             meal_selector = lunch_block_selector + '> div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + i + ')';
             if (ref.exists(meal_selector)) {
+                if(!(ref.exists(meal_selector + '> span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip'))){
+                    res_state = "CANT_GET";
+                    break;
+                }
                 meal_dat = ref.getElementInfo(meal_selector);
                 ref.echo("++++" + i);
                 ref.echo(meal_dat.text);
                 MEAL_name = give_clean_meal_name(meal_dat.text);
-                ref.echo("point is:");
-                ref.echo(name_to_point_map[MEAL_name]);
+                if(MEAL_name in name_to_point_map) {
+                    ref.echo("point is:");
+                    ref.echo(name_to_point_map[MEAL_name]);
+                } else {//We have a problem here...
+                    ref.echo("Didn't find the name in dictionary:");
+                    ref.echo(MEAL_name);
+                    res_state = "UNKNOWN_MEAL"
+                }
 
-                //Check if it has been reserved:
-                // if(ref.exists(meal_selector + '> span.fa.fa-check.fa-lg.has-left-margin.has_tooltip')){
-                //     ref.echo('CONFIRMED!');
-                //     temp_meal["status"] = "OK_DONE";
-                // }
-                // else if(ref.exists(meal_selector + '> span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip')){
-                //     ref.echo("You can still get it...");
-                //     temp_meal["status"] = "AWAITING";
-                // }
-                // else if(ref.exists(meal_selector + '> span.fa.fa-times-circle.fa-lg.has-left-margin.cursor_pointer.has_tooltip')){
-                //     ref.echo('Confirmed - But may get canceled...');
-                //     temp_meal["status"] = "OK_AWAITING";
-                // }
-                // else{
-                //     ref.echo("Nope you lost it!!!");
-                //     temp_meal["status"] = "FAILED";
-                // }
-                // lunch_arr.push(temp_meal);
+                if(meal_num_with_max_point == 0){//initial value
+                    max_point = name_to_point_map[MEAL_name];
+                    meal_num_with_max_point = i;
+                    res_state = "GOOD_TO_GO";
+                } else if(max_point < name_to_point_map[MEAL_name]){
+                    max_point = name_to_point_map[MEAL_name];
+                    meal_num_with_max_point = i;
+                } else if(max_point == name_to_point_map[MEAL_name]){//We have a problem here...
+                    res_state = "EQUAL_POINTS";
+                }
             }else {
                 break;
             }
         }
+        //Now we're going to select the order button
+        if(res_state == "GOOD_TO_GO"){
+            res_selector = lunch_block_selector + '> div.food-reserve-diet-div.has-mini-bottom-padding:nth-child('
+                + meal_num_with_max_point + ')'
+                + '> span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip';
+            ref.thenClick(res_selector);
+        }
+        ref.echo(res_state);
     }else{
         // ref.echo("INCORRECT ROW NUMBER: " + row_num);
         ref.echo("EMPTY LUNCH ROW: " + row_num)
@@ -228,7 +241,7 @@ casper.then(function() {
 // .thenClick('.navigation-link:nth-child(1)')
 // .then(function(){
 //     this.wait(3000, function(){this.echo('Waiting finished')});
-// })
+// })TODO uncomment this part before release (to navigate next week)
 // .then(function(){
 //     var order_list = parsed_input_JSON["order_list"];
 //
