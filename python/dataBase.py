@@ -99,32 +99,47 @@ def get_users_selected_PLCs():
         return output_users
 
 # Priorities:
-def update_PRI_LIST_database(userID,pri_list):
+def update_PRI_LIST_database(userID,pri_list,sel_days = []):
     with sqlite3.connect("../users.sqlite") as conn:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM priority_list WHERE u_id=?",(userID,))
+        cur.execute("SELECT * FROM auto_res_data WHERE u_id=?",(userID,))
         sample_test = cur.fetchone()
         if sample_test == None:# we have a new priority list
-            conn.execute("INSERT INTO priority_list VALUES (?, ?);",
+            conn.execute("INSERT INTO auto_res_data VALUES (?, ?, ?);",
                          (userID,
-                          str(pri_list)))
+                          str(pri_list),
+                          str(sel_days)))
             return False
         else:# update the existing priority list of the user
-            conn.execute("UPDATE priority_list SET pri_arr=? WHERE u_id=?",
+            conn.execute("UPDATE auto_res_data SET pri_arr=?,selected_days=? WHERE u_id=?",
                          (str(pri_list),
+                          str(sel_days),
                           userID))
             return True
+
+
 
 def get_users_PRI_LIST():
     with sqlite3.connect("../users.sqlite") as conn:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM priority_list")
+        cur.execute("SELECT * FROM auto_res_data")
         DB_table = cur.fetchall()
         print DB_table
         output_pri_list = {}
         for elem in DB_table:
             output_pri_list[elem[0]] = ast.literal_eval(elem[1])
         return output_pri_list
+
+def get_users_AUTO_RES_DAYS():
+    with sqlite3.connect("../users.sqlite") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM auto_res_data")
+        DB_table = cur.fetchall()
+        print DB_table
+        selected_dates_to_res = {}
+        for elem in DB_table:
+            selected_dates_to_res[elem[0]] = ast.literal_eval(elem[2])
+        return selected_dates_to_res
 
 with sqlite3.connect("../users.sqlite") as conn:
     cur = conn.cursor()
@@ -140,9 +155,10 @@ with sqlite3.connect("../users.sqlite") as conn:
                 "u_id MEDIUMINT, "
                 "PLCs TEXT, "
                 "selected_PLCs TEXT);")
-    cur.execute("CREATE TABLE IF NOT EXISTS priority_list("
+    cur.execute("CREATE TABLE IF NOT EXISTS auto_res_data("
                 "u_id MEDIUMINT, "
-                "pri_arr TEXT);")
+                "pri_arr TEXT,"
+                "selected_days TEXT);")
 
     conn.commit()
 

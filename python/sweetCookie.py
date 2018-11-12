@@ -9,7 +9,6 @@ import trafficController
 import threading, datetime
 
 #TODO fix the fcode for dinner
-#TODO clean the files in the repo
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
@@ -79,7 +78,7 @@ def test_FUNC(message):
 def COMM_get_pri(message):
     check = trafficController.check_spam(message.chat.id, 'COMM_get_pri')
     if check == "OK":
-        response = users.STARTget_priority(message.chat.id)
+        response = users.STARTset_auto_res(message.chat.id)
         if response is not None:
             bot.send_message(message.chat.id, response)
         trafficController.finished_process(message.chat.id, 'COMM_get_pri')

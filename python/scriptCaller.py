@@ -272,12 +272,13 @@ def get_user_DINING_inc_credit_link(username,password,chat_id,amount):
     # os.remove('../tmp/' + input_file_name)
     return data
 
-def auto_res_DINING_by_pri_list(username,password,chat_id,PLCnum,pri_list):
+def auto_res_DINING_by_pri_list(username,password,chat_id,PLCnum,pri_list,serve_times):
     input_data = {"pass": password,
                   "user": username,
                   "chat_id": chat_id,
                   "PLCnum": PLCnum,
-                  "pri_list": pri_list}
+                  "pri_list": pri_list,
+                  "serve_times": serve_times}
     input_file_name = 'input_ARS_' + str(chat_id) + '.json'
     with open('../tmp/' + input_file_name, 'w') as outfile:
         json.dump(input_data, outfile)
