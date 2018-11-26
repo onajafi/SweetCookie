@@ -62,6 +62,9 @@ casper.then(function() {
 .then(function(){
     this.sendKeys('#paymentsform-amount', parsed_input_JSON["amount"]);
 })
+.then(function () {
+    this.wait(1000);
+})
 .thenClick('div.form-group:nth-child(6) > div:nth-child(1) > button:nth-child(2)')
 .then(function(){
     this.echo('STEP 2: Waiting for the payment page to load');

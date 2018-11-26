@@ -19,7 +19,22 @@ function give_clean_meal_name(str1){
     return str1.match(name_regex)[1];
 }
 
-function order_in_row(ref,row_num){
+function Confirm_the_click(ref,CSSselector,tries) {
+    if(tries <= 0){
+        ref.click
+        return;
+    }
+    if(ref.exists(CSSselector)){
+        ref.wait(100,Confirm_the_click,ref,CSSselector,tries-1);
+    }
+    return;
+}
+
+// This function orders the dinner and lunch in the row of a table
+// row_num: The row number in the table [1...7]
+// get_lunch: If true it will reserve the meal at that time, otherwise it will just skip that part
+// get_dinner: Same as get_lunch but for dinner
+function order_in_row(ref,row_num,get_lunch,get_dinner){
     lunch_block_selector = 'table.table.sharif-table.table-bordered.table-condensed > tbody > tr:nth-child('+ row_num +') > td:nth-child(2)';
     dinner_block_selector = 'table.table.sharif-table.table-bordered.table-condensed > tbody > tr:nth-child('+ row_num +') > td:nth-child(3)';
     date_selector = 'table.table.sharif-table.table-bordered.table-condensed > tbody > tr:nth-child('+ row_num +') > th';
@@ -27,10 +42,12 @@ function order_in_row(ref,row_num){
     var meal_num_with_max_point = 0;
     var max_point;
     var res_state = "NO_MEAL";
+    var meal_CNT = 0;
 
     //LUNCH
-    lunch_arr = [];
-    if(ref.exists(lunch_block_selector)) {
+    if(!get_lunch){
+        ref.echo("DECIDED NOT TO ORDER LUNCH ROW: " + row_num)
+    }else if(ref.exists(lunch_block_selector)) {
         // ref.echo(ref.getElementInfo(lunch_block_selector).text);
         for(var i=1;;i++) {
             meal_selector = lunch_block_selector + '> div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + i + ')';
@@ -39,6 +56,7 @@ function order_in_row(ref,row_num){
                     res_state = "CANT_GET";
                     break;
                 }
+                meal_CNT++;
                 meal_dat = ref.getElementInfo(meal_selector);
                 ref.echo("++++" + i);
                 ref.echo(meal_dat.text);
@@ -52,26 +70,30 @@ function order_in_row(ref,row_num){
                     res_state = "UNKNOWN_MEAL"
                 }
 
-                if(meal_num_with_max_point == 0){//initial value
-                    max_point = name_to_point_map[MEAL_name];
-                    meal_num_with_max_point = i;
-                    res_state = "GOOD_TO_GO";
-                } else if(max_point < name_to_point_map[MEAL_name]){
-                    max_point = name_to_point_map[MEAL_name];
-                    meal_num_with_max_point = i;
-                } else if(max_point == name_to_point_map[MEAL_name]){//We have a problem here...
-                    res_state = "EQUAL_POINTS";
+                if(res_state != "UNKNOWN_MEAL") {//TODO check the else
+                    if (meal_num_with_max_point == 0) {//initial value
+                        max_point = name_to_point_map[MEAL_name];
+                        meal_num_with_max_point = i;
+                        res_state = "GOOD_TO_GO";
+                    } else if (max_point < name_to_point_map[MEAL_name]) {
+                        max_point = name_to_point_map[MEAL_name];
+                        meal_num_with_max_point = i;
+                    } else if (max_point == name_to_point_map[MEAL_name]) {//We have a problem here...
+                        res_state = "EQUAL_POINTS";
+                    }
+                } else {
+                    meal_num_with_max_point = 1;
                 }
             }else {
                 break;
             }
         }
         //Now we're going to select the order button
-        if(res_state == "GOOD_TO_GO"){
+        if(res_state == "GOOD_TO_GO" || (res_state == "UNKNOWN_MEAL" && meal_CNT == 1)){
             res_selector = lunch_block_selector + '> div.food-reserve-diet-div.has-mini-bottom-padding:nth-child('
                 + meal_num_with_max_point + ')'
                 + '> span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip';
-            ref.thenClick(res_selector);
+            ref.click(res_selector);
         }
         ref.echo(res_state);
     }else{
@@ -81,91 +103,105 @@ function order_in_row(ref,row_num){
 
 
 
-    return;
+    meal_num_with_max_point = 0;
+    res_state = "NO_MEAL";
+    meal_CNT = 0;
 
-
-
-
-    dinner_arr = [];
-    if(ref.exists(dinner_block_selector)) {
-        ref.echo(ref.getElementInfo(dinner_block_selector).text);
+    //DINNER
+    if(!get_dinner){
+        ref.echo("DECIDED NOT TO ORDER DINNER ROW: " + row_num)
+    }else if(ref.exists(dinner_block_selector)) {
+        // ref.echo(ref.getElementInfo(dinner_block_selector).text);
         for(var i=1;;i++) {
             meal_selector = dinner_block_selector + '> div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + i + ')';
             if (ref.exists(meal_selector)) {
-                var temp_meal = {};
+                if(!(ref.exists(meal_selector + '> span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip'))){
+                    res_state = "CANT_GET";
+                    break;
+                }
+                meal_CNT++;
                 meal_dat = ref.getElementInfo(meal_selector);
                 ref.echo("++++" + i);
                 ref.echo(meal_dat.text);
-                temp_meal["meal_name"] = meal_dat.text;
+                MEAL_name = give_clean_meal_name(meal_dat.text);
+                if(MEAL_name in name_to_point_map) {
+                    ref.echo("point is:");
+                    ref.echo(name_to_point_map[MEAL_name]);
+                } else {//We have a problem here...
+                    ref.echo("Didn't find the name in dictionary:");
+                    ref.echo(MEAL_name);
+                    res_state = "UNKNOWN_MEAL"
+                }
 
-                //Check if it has been reserved:
-                if(ref.exists(meal_selector + '> span.fa.fa-check.fa-lg.has-left-margin.has_tooltip')){
-                    ref.echo('CONFIRMED!');
-                    temp_meal["status"] = "OK_DONE";
+                if(res_state != "UNKNOWN_MEAL") {
+                    if (meal_num_with_max_point == 0) {//initial value
+                        max_point = name_to_point_map[MEAL_name];
+                        meal_num_with_max_point = i;
+                        res_state = "GOOD_TO_GO";
+                    } else if (max_point < name_to_point_map[MEAL_name]) {
+                        max_point = name_to_point_map[MEAL_name];
+                        meal_num_with_max_point = i;
+                    } else if (max_point == name_to_point_map[MEAL_name]) {//We have a problem here...
+                        res_state = "EQUAL_POINTS";
+                    }
+                } else {
+                    meal_num_with_max_point = 1;
                 }
-                else if(ref.exists(meal_selector + '> span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip')){
-                    ref.echo("You can still get it...");
-                    temp_meal["status"] = "AWAITING";
-                }
-                else if(ref.exists(meal_selector + '> span.fa.fa-times-circle.fa-lg.has-left-margin.cursor_pointer.has_tooltip')){
-                    ref.echo('Confirmed - But may get canceled...');
-                    temp_meal["status"] = "OK_AWAITING";
-                }
-                else{
-                    ref.echo("Nope you lost it!!!");
-                    temp_meal["status"] = "FAILED";
-                }
-                dinner_arr.push(temp_meal);
+
             }else {
                 break;
             }
         }
+        //Now we're going to select the order button
+        if(res_state == "GOOD_TO_GO" || (res_state == "UNKNOWN_MEAL" && meal_CNT == 1)){
+            res_selector = dinner_block_selector + '> div.food-reserve-diet-div.has-mini-bottom-padding:nth-child('
+                + meal_num_with_max_point + ')'
+                + '> span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip';
+            ref.thenClick(res_selector);
+        }
+        ref.echo(res_state);
     }else{
         // ref.echo("INCORRECT ROW NUMBER: " + row_num);
         ref.echo("EMPTY DINNER ROW: " + row_num)
-    }
-    // Processing dinner:
-    var chosen_ST = false;
-    for(var i=0;i<dinner_arr.length;i++) {
-        temp_meal = dinner_arr[i];
-        if (temp_meal["status"] == "OK_DONE" ||
-                temp_meal["status"] == "OK_AWAITING"){
-            chosen_ST = true;
-            break;
-        }
-    }
-    for(var i=0;i<dinner_arr.length;i++) {
-
-        temp_meal = dinner_arr[i];
-        switch (temp_meal["status"]) {
-            case "OK_DONE":
-            case "OK_AWAITING":
-                temp_output[temp_meal["meal_name"]] = confirmed_score;
-                break;
-            case "FAILED":
-                if(chosen_ST){
-                    temp_output[temp_meal["meal_name"]] = reject_score;
-                }else{
-                    temp_output[temp_meal["meal_name"]] = unselected_score;
-                }
-                break;
-            case "AWAITING":
-                temp_output[temp_meal["meal_name"]] = unselected_score;
-                break;
-        }
     }
 
     return;
 }
 
+//Having some problem in the type of what we parse in "serve_times" so I made this function:
+function include(array,elem){
+    count = array.length;
+    for (i=0;i<count;i++){
+        if(array[i] == elem)
+            return true;
+    }
+    return false;
+}
 
 function order_all_meals_in_table(ref){
-
+    var temp_SERVE_TIME = parsed_input_JSON["serve_times"];
+    ref.echo(temp_SERVE_TIME);
     for (var j = 1; j <= 7; j++) {
-        ref.echo('================');
-        order_in_row(ref, j);
-    }
+        ref.echo('================'+j);
 
+        if(include(temp_SERVE_TIME,j)){
+            get_lunch = true;
+            ref.echo("TRUE_LUNCH");
+        }else{
+            get_lunch=false;
+        }
+
+        if(include(temp_SERVE_TIME,j)){
+            get_dinner = true;
+        }else{
+            get_dinner=false;
+        }
+
+        if(get_lunch || get_dinner) {
+            order_in_row(ref, j, get_lunch, get_dinner);
+            ref.echo("CALLED_THE_FUNC");
+        }
+    }
     return true;
 }
 
@@ -238,43 +274,10 @@ casper.then(function() {
 .then(function(){
     this.wait(3000, function(){this.echo('Waiting finished')});
 })
-// .thenClick('.navigation-link:nth-child(1)')
-// .then(function(){
-//     this.wait(3000, function(){this.echo('Waiting finished')});
-// })TODO uncomment this part before release (to navigate next week)
-// .then(function(){
-//     var order_list = parsed_input_JSON["order_list"];
-//
-//     ref = this;
-//     Object.keys(order_list).forEach(function(key) {
-//         ref.echo("IN_LOOP:");
-//         ref.echo(key);
-//         if(order_list[key] == "nevermind"){
-//             return;
-//         }
-//         //Find out if this is a lunch or dinner:
-//         var column;
-//         if(Number(key) < 7){
-//             column = '2';
-//             var cart_button_selector = 'tr:nth-child(' + (Number(key) + 1)
-//             + ') > td:nth-child('+ column +') > div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + (Number(order_list[key]) + 1)
-//             + ') > span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip';
-//         }else{
-//             column = '3';
-//             var cart_button_selector = 'tr:nth-child(' + (Number(key) -6)
-//             + ') > td:nth-child('+ column +') > div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + (Number(order_list[key]) + 1)
-//             + ') > span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip';
-//         }
-//
-//
-//         if(ref.exists(cart_button_selector)) {
-//             ref.thenClick(cart_button_selector);
-//             ref.echo("FOUND: " + key + " - " + order_list[key])
-//         }else{
-//             ref.echo("Didn't find the button: " + key + " - " + order_list[key])
-//         }
-//     });
-// })
+.thenClick('.navigation-link:nth-child(1)')
+.then(function(){
+    this.wait(3000, function(){this.echo('Waiting finished')});
+})//TODO uncomment this part before release (to navigate next week)
 .then(function(){
     order_all_meals_in_table(this);
 })
