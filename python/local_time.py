@@ -17,4 +17,6 @@ def IsLunchTime():
     if(lunch_time_start < now and now < lunch_time_end):
         return True
 
-
+def giveServeNumber():
+    now = get_time()
+    return ((now.weekday() + 2) % 7) + 1

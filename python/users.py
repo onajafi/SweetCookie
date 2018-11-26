@@ -514,6 +514,7 @@ def get_DINING_forgotten_code(userID,PLCnum):
                 bot.send_message(userID,"در حال دریافت کد فراموشی وعده شام")
             elif(meal_type == "lunch"):
                 bot.send_message(userID, "در حال دریافت کد فراموشی وعده ناهار")
+
             temp_data = scriptCaller.get_user_DINING_forgotten_code(users_book[userID]["user"],
                                                           users_book[userID]["pass"],
                                                           userID,
@@ -540,6 +541,10 @@ def get_DINING_forgotten_code(userID,PLCnum):
             bot.send_message(userID,"تمومش کردی که؟!؟!\nتا آخر ترم باید با کارت دانشجویی، غذات رو تحویل بگیری...")
             return
 
+        if(temp_data["MEAL_IS_AVAILABLE"] == "FALSE"):
+            bot.send_message(userID,"ظاهرا برای این وعده رزروی انجام نشده :(")
+            return
+
         if("FCode" not in temp_data.keys()):
             bot.send_message(userID, MSGs.we_cant_do_it_now)
             return
@@ -547,6 +552,8 @@ def get_DINING_forgotten_code(userID,PLCnum):
 
         message_TXT = ""
         message_TXT += "کد فراموشی: \n" + str(temp_data["FCode"])
+        message_TXT += "\n"
+        message_TXT += str(temp_data["meal_name"])
 
         return message_TXT
     except:

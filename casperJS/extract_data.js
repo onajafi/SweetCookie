@@ -271,7 +271,7 @@ casper.then(function() {
         this.evaluate(function(row_value) {
             var form = document.querySelector('select#foodreservesdefineform-self_id');
             form.selectedIndex = row_value;
-            $(form).val(row_value).change(); //TODO do something about the values (#19 is just for the boys section)
+            $(form).val(row_value).change();
 
         },parsed_input_JSON["PLCnum"]);
 

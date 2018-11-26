@@ -13,6 +13,107 @@ var parsed_input_JSON = JSON.parse(file_input)
 //----------------------
 
 
+
+function give_ALL_THE_data_in_row(ref,row_num){
+    lunch_block_selector = 'table.table.sharif-table.table-bordered.table-condensed > tbody > tr:nth-child('+ row_num +') > td:nth-child(2)';
+    dinner_block_selector = 'table.table.sharif-table.table-bordered.table-condensed > tbody > tr:nth-child('+ row_num +') > td:nth-child(3)';
+    date_selector = 'table.table.sharif-table.table-bordered.table-condensed > tbody > tr:nth-child('+ row_num +') > th';
+    temp_output = {};
+    if(ref.exists(date_selector)){
+        // ref.echo(ref.getElementInfo(date_selector).text);
+        ref.echo(ref.getElementInfo(date_selector).text.match(week_regex));
+        ref.echo(ref.getElementInfo(date_selector).text.match(date_regex));
+        temp_output["day"] = ref.getElementInfo(date_selector).text.match(week_regex)[0];
+        temp_output["date"] = ref.getElementInfo(date_selector).text.match(date_regex)[0];
+    }
+    else{
+        temp_output["day"] = "";
+        temp_output["date"] = "";
+    }
+
+    temp_output["lunch_arr"] = [];
+    if(ref.exists(lunch_block_selector)) {
+        ref.echo(ref.getElementInfo(lunch_block_selector).text);
+        for(var i=1;;i++) {
+            meal_selector = lunch_block_selector + '> div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + i + ')';
+            if (ref.exists(meal_selector)) {
+                var temp_meal = {};
+                meal_dat = ref.getElementInfo(meal_selector);
+                ref.echo("++++" + i);
+                ref.echo(meal_dat.text);
+                temp_meal["meal_name"] = meal_dat.text;
+
+                //Check if it has been reserved:
+                if(ref.exists(meal_selector + '> span.fa.fa-check.fa-lg.has-left-margin.has_tooltip')){
+                    ref.echo('CONFIRMED!');
+                    temp_meal["status"] = "OK_DONE";
+                }
+                else if(ref.exists(meal_selector + '> span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip')){
+                    ref.echo("You can still get it...");
+                    temp_meal["status"] = "AWAITING";
+                }
+                else if(ref.exists(meal_selector + '> span.fa.fa-times-circle.fa-lg.has-left-margin.cursor_pointer.has_tooltip')){
+                    ref.echo('Confirmed - But may get canceled...');
+                    temp_meal["status"] = "OK_AWAITING";
+                }
+                else{
+                    ref.echo("Nope you lost it!!!");
+                    temp_meal["status"] = "FAILED";
+                }
+                temp_output["lunch_arr"].push(temp_meal);
+            }else {
+                break;
+            }
+        }
+    }else{
+        // ref.echo("INCORRECT ROW NUMBER: " + row_num);
+        ref.echo("EMPTY LUNCH ROW: " + row_num)
+    }
+
+    temp_output["dinner_arr"] = [];
+    if(ref.exists(dinner_block_selector)) {
+        ref.echo(ref.getElementInfo(dinner_block_selector).text);
+        for(var i=1;;i++) {
+            meal_selector = dinner_block_selector + '> div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + i + ')';
+            if (ref.exists(meal_selector)) {
+                var temp_meal = {};
+                meal_dat = ref.getElementInfo(meal_selector);
+                ref.echo("++++" + i);
+                ref.echo(meal_dat.text);
+                temp_meal["meal_name"] = meal_dat.text;
+
+                //Check if it has been reserved:
+                if(ref.exists(meal_selector + '> span.fa.fa-check.fa-lg.has-left-margin.has_tooltip')){
+                    ref.echo('CONFIRMED!');
+                    temp_meal["status"] = "OK_DONE";
+                }
+                else if(ref.exists(meal_selector + '> span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip')){
+                    ref.echo("You can still get it...");
+                    temp_meal["status"] = "AWAITING";
+                }
+                else if(ref.exists(meal_selector + '> span.fa.fa-times-circle.fa-lg.has-left-margin.cursor_pointer.has_tooltip')){
+                    ref.echo('Confirmed - But may get canceled...');
+                    temp_meal["status"] = "OK_AWAITING";
+                }
+                else{
+                    ref.echo("Nope you lost it!!!");
+                    temp_meal["status"] = "FAILED";
+                }
+                temp_output["dinner_arr"].push(temp_meal);
+            }else {
+                break;
+            }
+        }
+    }else{
+        // ref.echo("INCORRECT ROW NUMBER: " + row_num);
+        ref.echo("EMPTY DINNER ROW: " + row_num)
+    }
+
+    return temp_output;
+}
+
+
+
 var output_for_JSON = {};
 
 casper.start('http://dining.sharif.edu/login');
@@ -79,7 +180,7 @@ casper.then(function() {
             output_for_JSON["LIMIT_IS_REACHED"] = "FALSE";
         }else{
             output_for_JSON["LIMIT_IS_REACHED"] = "TRUE";
-            extract_json_file()
+            extract_json_file();
             this.exit();
         }
     })
@@ -87,11 +188,11 @@ casper.then(function() {
     this.echo("------------------------------------------------");
 
     this.echo(this.getHTML('select#foodforgottencodesform-self_id'));
-    this.evaluate(function() {
+    this.evaluate(function(row_value) {
         var form = document.querySelector('select#foodforgottencodesform-self_id');
-        form.selectedIndex = 19;
-        $(form).val(19).change();
-    });
+        form.selectedIndex = row_value;
+        $(form).val(row_value).change();
+    },parsed_input_JSON["PLCnum"]);
   })
   .then(function(){
     if(parsed_input_JSON["meal_type"] == "dinner") {
@@ -105,20 +206,27 @@ casper.then(function() {
     }
   })
   .then(function(){
-      for(var i=0;i<10;i++) {//wait for 10 secs in total
-          this.wait(1000, function () {});
-          if(this.exists('button#get_forgotten_code_button')){
-              break;
-          }
+      this.wait(3000, function () {this.echo('Waiting finished');});
+
+  }).then(function(){
+      if(this.exists('#get_forgotten_code_button')){
+          output_for_JSON["MEAL_IS_AVAILABLE"] = "TRUE";
+      } else {
+          output_for_JSON["MEAL_IS_AVAILABLE"] = "FALSE";
+          extract_json_file();
+          this.exit();
       }
-      this.echo('Waiting finished')
-  })
+    })
+    .then(function () {
+        output_for_JSON["meal_name"] = this.getElementInfo('#get_forgotten_code_button')['text']
+        this.echo(output_for_JSON["meal_name"])
+    })
   .thenClick('button#get_forgotten_code_button')
   .then(function(){
       for(var i=0;i<10;i++) {//wait for 10 secs in total
           this.wait(1000, function () {});
           if(this.exists('div.alert.alert-info.no-bottom-margin')){
-              this.echo("found it!")
+              this.echo("found it!");
               break;
           }
       }
@@ -130,6 +238,33 @@ casper.then(function() {
       this.echo(forgotten_code);
       output_for_JSON["FCode"] = forgotten_code;
   })
+    //Now lets get the meal name (ISSUE #1)
+  // .thenOpen("http://dining.sharif.edu/admin/food/food-reserve/reserve")
+  //   .then(function(){
+  //   this.wait(3000, function(){this.echo('Waiting finished')});
+  //   })
+  //   .then(function(){
+  //       this.evaluate(function(row_value) {
+  //           var form = document.querySelector('select#foodreservesdefineform-self_id');
+  //           form.selectedIndex = row_value;
+  //           $(form).val(row_value).change();
+  //
+  //       },parsed_input_JSON["PLCnum"]);
+  //
+  //
+  //   })
+  //   .then(function(){
+  //   this.wait(3000, function(){this.echo('Waiting finished')});
+  //   })
+  //   .then(function(){
+  //       temp_row_data = give_ALL_THE_data_in_row(this,parsed_input_JSON["serve_day"]);
+  //       if(parsed_input_JSON["meal_type"] == "lunch") {
+  //           parsed_input_JSON["meal_name"] = temp_row_data["lunch_arr"]["meal_name"]
+  //       } else {
+  //           parsed_input_JSON["meal_name"] = temp_row_data["lunch_arr"]["meal_name"]
+  //       }
+  //
+  //   })
   .then(function(){
     this.capture('navigation.png');
 

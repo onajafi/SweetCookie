@@ -86,6 +86,7 @@ def get_user_DINING_forgotten_code(username,password,chat_id,PLCnum,meal_type):
                   "chat_id": chat_id,
                   "PLCnum":PLCnum,
                   "meal_type":meal_type}
+
     input_file_name = 'input_GFC_' + str(chat_id) + '.json'
     with open('../tmp/' + input_file_name, 'w') as outfile:
         json.dump(input_data, outfile)
