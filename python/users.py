@@ -535,9 +535,15 @@ def get_DINING_forgotten_code(userID,PLCnum):
         if (temp_data["PASSWORD_STATE"] == "WRONG"):
             return MSGs.your_password_is_wrong
 
+        bot.send_message(userID,temp_data["alert_info"])
+        if(temp_data["LIMIT_IS_REACHED"] == "TRUE"):
+            bot.send_message(userID,"تمومش کردی که؟!؟!\nتا آخر ترم باید با کارت دانشجویی، غذات رو تحویل بگیری...")
+            return
+
         if("FCode" not in temp_data.keys()):
             bot.send_message(userID, MSGs.we_cant_do_it_now)
             return
+
 
         message_TXT = ""
         message_TXT += "کد فراموشی: \n" + str(temp_data["FCode"])
@@ -1216,7 +1222,7 @@ def do_DINING_auto_reserve(userID,PLCnum):
         return MSGs.your_password_is_wrong
 
     bot.send_message(userID,"انجام شد :)")
-    extract_DINING_data(userID,PLCnum)
+    extract_DINING_next_weeks_data(userID,PLCnum)
     return None
 
 

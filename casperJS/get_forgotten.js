@@ -58,7 +58,7 @@ casper.then(function() {
     }else{
         output_for_JSON["PASSWORD_STATE"] = "WRONG";
         extract_json_file();
-        this.echo("wrong password or username")
+        this.echo("wrong password or username");
     this.capture('navigation.png');
         this.exit();
     }
@@ -66,6 +66,23 @@ casper.then(function() {
   .then(function(){
     this.wait(3000, function(){this.echo('Waiting finished')});
   })
+    .then(function(){
+        this.echo("Check this out:+++++++");
+        // require('utils').dump(Object.keys(this.getElementInfo('div.alert.alert-info')));
+
+        require('utils').dump(this.getElementInfo('div.alert.alert-info')['text']);
+        output_for_JSON["alert_info"] = this.getElementInfo('div.alert.alert-info')['text'];
+        this.echo("_________________________");
+    })
+    .then(function(){//Check if the limit is not reached:
+        if(this.exists('select#foodforgottencodesform-self_id')){
+            output_for_JSON["LIMIT_IS_REACHED"] = "FALSE";
+        }else{
+            output_for_JSON["LIMIT_IS_REACHED"] = "TRUE";
+            extract_json_file()
+            this.exit();
+        }
+    })
   .then(function(){
     this.echo("------------------------------------------------");
 
