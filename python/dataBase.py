@@ -99,6 +99,7 @@ def get_users_selected_PLCs():
         return output_users
 
 # Priorities:
+# Write to DB
 def update_PRI_LIST_database(userID,pri_list,sel_days = []):
     with sqlite3.connect("../users.sqlite") as conn:
         cur = conn.cursor()
@@ -118,7 +119,7 @@ def update_PRI_LIST_database(userID,pri_list,sel_days = []):
             return True
 
 
-
+# Read from DB:
 def get_users_PRI_LIST():
     with sqlite3.connect("../users.sqlite") as conn:
         cur = conn.cursor()

@@ -8,6 +8,11 @@ import dataBase
 import trafficController
 import threading, datetime
 
+#TODO make the option to change the priority list
+#TODO Write the thread to handle the auto res (on Tuesday)
+#TODO add a command to turn off the auto res
+#TODO implement a cancel commad for the reserved meal
+#TODO make every message to send the reply markup
 #TODO fix the fcode for dinner
 
 @bot.message_handler(commands=['start'])
@@ -83,14 +88,14 @@ def COMM_get_pri(message):
             bot.send_message(message.chat.id, response)
         trafficController.finished_process(message.chat.id, 'COMM_get_pri')
 
-@bot.message_handler(commands=['do_auto_res'])
+@bot.message_handler(commands=['test_auto_res'])
 def COMM_get_pri(message):
-    check = trafficController.check_spam(message.chat.id, 'COMM_do_auto_res')
+    check = trafficController.check_spam(message.chat.id, 'COMM_test_auto_res')
     if check == "OK":
         response = users.START_comm_to_test_auto_res(message.chat.id)
         if response is not None:
             bot.send_message(message.chat.id, response)
-        trafficController.finished_process(message.chat.id, 'COMM_do_auto_res')
+        trafficController.finished_process(message.chat.id, 'COMM_test_auto_res')
 
 
 @bot.message_handler(commands=['test'])
@@ -102,7 +107,8 @@ def COMM_ordermeal(message):
     #         bot.send_message(message.chat.id, response)
     #     trafficController.finished_process(message.chat.id, 'COMM_get_pri')
     # bot.send_message(message.chat.id,"test",reply_markup=MSGs.simple_MAIN_markup)
-    users.test(message.chat.id)
+    # users.test(message.chat.id)
+    pass
 
 @bot.message_handler(commands=['feedback'])
 def COMM_feedback(message):
@@ -122,10 +128,6 @@ def test_FUNC(message):
 @bot.message_handler(commands=['respond'])
 def COMM_respond(message):
     users.process_respond(message.chat.id)
-
-# @bot.message_handler(commands=['test'])
-# def test_FUNC(message):
-#     users.extract_DINING_places(message.chat.id)
 
 @bot.message_handler(content_types=['text'])
 def text_MSG(message):

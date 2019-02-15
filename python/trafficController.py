@@ -10,7 +10,7 @@ last_user_msg = {}
 
 long_process = {"fcode",'CALL','ordermeal','thisweek','nextweek','fcode',
                 'CALL_UserPass','CALL_FCode','CALL_OrderNextWeek',"SCRIPT",
-                'set_places','get_pri','COMM_inc_credit','COMM_do_auto_res','auto_res'}
+                'set_places','get_pri','COMM_inc_credit','COMM_test_auto_res','auto_res'}
 
 short_process = {'start','text','COMM_nextweek','COMM_thisweek','COMM_fcode',
                  'COMM_ordermeal','COMM_get_pri','COMM_help','inc_credit'}

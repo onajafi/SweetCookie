@@ -209,6 +209,7 @@ casper.then(function() {
       this.wait(3000, function () {this.echo('Waiting finished');});
 
   }).then(function(){
+    this.capture('navigation.png');
       if(this.exists('#get_forgotten_code_button')){
           output_for_JSON["MEAL_IS_AVAILABLE"] = "TRUE";
       } else {

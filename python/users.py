@@ -129,6 +129,8 @@ def process_user_MSG(userID, message_TXT,message):
             bot.send_message(tmp_resp_ID,message_TXT)
             bot.send_message(feedBack_target_chat, "Sent :)")
             users_book[userID]["state"] = None
+        elif (users_book[userID]["state"] == "AUTO_RES_A"):  # In this state the user is able to change the priority list
+            pass # TODO do we have to do something with this? or should we stick with the user friendly plan?
         elif(users_book[userID]["state"] == "getIncCreditAmount"):
             users_book[userID]["state"] = None
             number_val = FA_UNI_to_EN_DIGIT_CONV(message_TXT)
@@ -343,7 +345,6 @@ def process_user_call(userID,call_TXT,ACT_call):
                 trafficController.finished_process(userID, 'get_pri')
 
             users_book[userID]["state"] = "AUTO_RES_A"
-
         elif(users_book[userID]["state"] == "AUTO_RES_A" and call_TXT == 'AUTO_RES_A'):# TODO Here we have to save the current list in the database
 
             bot.edit_message_reply_markup(userID, ACT_call.message.message_id, reply_markup=MSGs.none_markup)
@@ -414,6 +415,8 @@ def process_user_call(userID,call_TXT,ACT_call):
             bot.edit_message_reply_markup(userID, ACT_call.message.message_id, reply_markup=SERVE_markup)
 
         elif (users_book[userID]["state"] == "AUTO_RES_SEL_DAYS" and call_TXT == "AUTO_RES_DAY_SEL_DONE"):
+            print "users_pri_list",users_pri_list
+            print "users_auto_res_days", users_auto_res_days
             dataBase.update_PRI_LIST_database(userID, users_pri_list[userID], users_auto_res_days[userID])
 
             temp_SERVE_DAYS = users_auto_res_days[userID]
@@ -1134,7 +1137,8 @@ def extract_DINING_priority(userID,PLCnum):
         temp_user_markup.add(types.InlineKeyboardButton('مرحله بعد',callback_data='AUTO_RES_A'))
 
         bot.send_message(userID,"لیست اولویت‌های غذایی شما:\n" + message_TXT,reply_markup=temp_user_markup)
-        # dataBase.update_PRI_LIST_database(userID,sorted_data)
+        dataBase.update_PRI_LIST_database(userID,sorted_data)
+        users_pri_list[userID] = sorted_data
         return None
     except:
         bot.send_message(userID, MSGs.we_cant_do_it_now)
@@ -1169,6 +1173,10 @@ def STARTset_auto_res(userID):# TODO test this with a proper account
 
 @Error_Handle.secure_from_exception
 def START_comm_to_test_auto_res(userID):# This is for testing the reserve
+    if (userID not in users_auto_res_days.keys()):
+        bot.send_message(userID,MSGs.please_setup_the_auto_res)
+        return None
+
     selected_PLCs = get_selected_PLCs(userID)
 
     if (len(selected_PLCs) > 1):  # It's not empty #TODO test this (it's going to reserve in all the places)
@@ -1195,6 +1203,7 @@ def START_comm_to_test_auto_res(userID):# This is for testing the reserve
             trafficController.finished_process(userID, 'auto_res')
     else:
         bot.send_message(userID, MSGs.no_selected_PLCs)
+
 @Error_Handle.secure_from_exception_2input
 def do_DINING_auto_reserve(userID,PLCnum):
     # if(users_pri_list[userID] == None): #TODO complete this if you need it
@@ -1220,19 +1229,28 @@ def do_DINING_auto_reserve(userID,PLCnum):
             bot.send_message(userID, MSGs.trying_again)
             attempts = attempts + 1
             continue
+        elif(temp_data["ORDERED_MEALS_STAT"] == False):# Better do this quietly
+            print "attempting again..."
+            attempts = attempts + 1
+            continue
         else:
             break
     if (temp_data["ENTRY_STATE"] == "BAD"):
         return MSGs.cant_do_it_now
 
     if (temp_data["PASSWORD_STATE"] == "WRONG"):
-        return MSGs.your_password_is_wrong
+        bot.send_message(userID,MSGs.your_password_is_wrong)
+        return None
 
-    bot.send_message(userID,"انجام شد :)")
+    if(temp_data["Balance"] < -20.000):
+        bot.send_message(userID, "مشکل در انجام رزرو خودکار:" + '\n' + "میزان اعتبار شما از حداقل مجاز کمتر است")
+    else:
+        bot.send_message(userID,"رزرو خودکار با موفقیت انجام شد :)")
     extract_DINING_next_weeks_data(userID,PLCnum)
     return None
 
 
+@Error_Handle.secure_from_exception
 def test(userID):
     message = ""
     for elem in users_pri_list[userID]:

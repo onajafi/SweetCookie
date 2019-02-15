@@ -487,7 +487,7 @@ casper.then(function() {
     //     navigate_to_previous_week(this);
     // })
     .then(function(){
-        tmp_DIC = get_ALL_priority_in_previous_weeks(this,10);
+        tmp_DIC = get_ALL_priority_in_previous_weeks(this,20);
     })
     .then(function(){
         // // Sorting
