@@ -373,7 +373,7 @@ casper.then(function() {
 .then(function(){
     this.wait(3000, function(){this.echo('Waiting finished')});
 })
-// .thenClick('.navigation-link:nth-child(1)')// Uncomment this part before release (to navigate next week)
+.thenClick('.navigation-link:nth-child(1)')// Uncomment this part before release (to navigate next week)
 .then(function(){
     this.wait(3000, function(){this.echo('Waiting finished')});
 })

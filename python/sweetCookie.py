@@ -9,7 +9,6 @@ import trafficController
 import threading, datetime
 
 #TODO make the option to change the priority list
-#TODO Write the thread to handle the auto res (on Tuesday)
 #TODO add a command to turn off the auto res
 #TODO implement a cancel commad for the reserved meal
 #TODO make every message to send the reply markup
@@ -176,23 +175,57 @@ def TUESDAY_ALARM():
                                             day = ALARM_TIME.day,
                                             hour=15, minute=00, second=00)
             wait_time = (ALARM_TIME - now).total_seconds() % (7*24*60*60)
-            print wait_time
+            print "wait_time: ",wait_time
             print (ALARM_TIME - now).total_seconds()
             time.sleep(wait_time)
             # time.sleep(2)
+            auto_res_count = 0
             counter = 0
             for tmpUserID in users.users_book.keys():
                 print "++=",tmpUserID
                 try:
-                    if(users.users_book[tmpUserID]["user"] != None and users.users_book[tmpUserID]["pass"] != None):#if there was some password to get in
-                        bot.send_message(tmpUserID,"وقت رزرو شده...",reply_markup = MSGs.reserve_time_markup)
-                        counter = counter + 1
+                    if(tmpUserID not in users.users_auto_res_days.keys()):# Make sure this guy doesn't have an auto_res
+                        if(users.users_book[tmpUserID]["user"] != None and users.users_book[tmpUserID]["pass"] != None): # If there was some password to get in
+                            bot.send_message(tmpUserID,"وقت رزرو شده...",reply_markup = MSGs.reserve_time_markup)
+                            counter += 1
+                    else:
+                        auto_res_count += 1
                 except:
                     pass
 
-            bot.send_message(feedBack_target_chat,"Number of users: " + str(counter))
+            bot.send_message(feedBack_target_chat,"Number of users: " + str(counter+auto_res_count))
+            bot.send_message(feedBack_target_chat, "Number of auto_res: " + str(auto_res_count))
+            bot.send_message(feedBack_target_chat, "lunching the AUTO_RESERVE...")
+            AUTO_RESERVE_TRIG()
+            bot.send_message(feedBack_target_chat, "finished AUTO_RESERVE :)")
         except:
             pass
+
+MAX_AUTO_RES_THREAD_NUM = 5
+#Do the auto reserve for all of those who have setup the auto_res
+def AUTO_RESERVE_TRIG():
+    global MAX_AUTO_RES_THREAD_NUM
+    thread_queue = []
+    for userID in users.users_auto_res_days.keys():
+        if(len(users.users_pri_list[userID]) != 0):
+            #Make sure there is enough space to make a new thread:
+            if(len(thread_queue) >= MAX_AUTO_RES_THREAD_NUM ):
+                idx = 0
+                while True:
+                    THR_elem = thread_queue[idx]
+                    if(not THR_elem.isAlive()):
+                        THR_elem.join()
+                        thread_queue.remove(THR_elem)
+                        break
+                    idx = (idx + 1) % MAX_AUTO_RES_THREAD_NUM
+                    time.sleep(0.1)
+
+            #Fire the new thread
+            thread_queue.append(threading.Thread(target=users.START_auto_res_quiet, args=(userID,)))
+            thread_queue[-1].start()
+
+    for THR_elem in thread_queue:
+        THR_elem.join()
 
 
 main_thread = threading.Thread(target = MAIN_THR)

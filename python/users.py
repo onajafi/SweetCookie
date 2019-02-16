@@ -1204,6 +1204,34 @@ def START_comm_to_test_auto_res(userID):# This is for testing the reserve
     else:
         bot.send_message(userID, MSGs.no_selected_PLCs)
 
+# returns an error message in str, otherwise it will return a True, showing every is fine
+@Error_Handle.secure_from_exception
+def START_auto_res_quiet(userID):
+    selected_PLCs = get_selected_PLCs(userID)
+
+    if (len(selected_PLCs) > 1):  # It's not empty #TODO test this (it's going to reserve in all the places)
+
+        for elem in selected_PLCs:
+            trafficController.drop_check(userID)
+            check = trafficController.check_spam(userID, 'auto_res')
+            if check == "OK":
+                response = do_DINING_auto_reserve(userID, elem)
+                if response is not None:
+                    bot.send_message(userID, "خطا در انجام رزرو خودکار:\n" + response)
+                trafficController.finished_process(userID, 'auto_res')
+
+    elif (len(selected_PLCs) == 1):
+        trafficController.drop_check(userID)
+        check = trafficController.check_spam(userID, 'auto_res')
+        if check == "OK":
+            response = do_DINING_auto_reserve(userID,
+                                               selected_PLCs[0])
+            if response is not None:
+                    bot.send_message(userID, "خطا در انجام رزرو خودکار:\n" + response)
+            trafficController.finished_process(userID, 'auto_res')
+    else:
+        bot.send_message(userID, "خطا در انجام رزرو خودکار:\n" + MSGs.no_selected_PLCs)
+
 @Error_Handle.secure_from_exception_2input
 def do_DINING_auto_reserve(userID,PLCnum):
     # if(users_pri_list[userID] == None): #TODO complete this if you need it
@@ -1226,7 +1254,7 @@ def do_DINING_auto_reserve(userID,PLCnum):
                                                             users_auto_res_days[userID])#TODO add this to the function input
         print str(temp_data)
         if (temp_data["ENTRY_STATE"] == "BAD"):
-            bot.send_message(userID, MSGs.trying_again)
+            # bot.send_message(userID, MSGs.trying_again)
             attempts = attempts + 1
             continue
         elif(temp_data["ORDERED_MEALS_STAT"] == False):# Better do this quietly
@@ -1239,11 +1267,10 @@ def do_DINING_auto_reserve(userID,PLCnum):
         return MSGs.cant_do_it_now
 
     if (temp_data["PASSWORD_STATE"] == "WRONG"):
-        bot.send_message(userID,MSGs.your_password_is_wrong)
-        return None
+        return MSGs.your_password_is_wrong
 
     if(temp_data["Balance"] < -20.000):
-        bot.send_message(userID, "مشکل در انجام رزرو خودکار:" + '\n' + "میزان اعتبار شما از حداقل مجاز کمتر است")
+        return "میزان اعتبار شما از حداقل مجاز کمتر است" + '\n' + temp_data["Balance"]
     else:
         bot.send_message(userID,"رزرو خودکار با موفقیت انجام شد :)")
     extract_DINING_next_weeks_data(userID,PLCnum)
@@ -1257,4 +1284,8 @@ def test(userID):
         message += elem[0] + '\n'
 
     bot.send_message(userID,message)
+
+
+
+
 

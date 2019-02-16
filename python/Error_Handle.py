@@ -19,6 +19,15 @@ def log_error(title):
 
 
 # This is a function decorator to keep it from killing the hole bot when giving an error
+def secure_from_exception_no_args(FUNC):
+    def output_FUNC():
+        try:
+            FUNC()
+        except:
+            log_error("ERROR: " + FUNC.__name__)
+            return
+    return output_FUNC
+
 # The Function (FUNC) has only 1 argument which is the userID
 def secure_from_exception(FUNC):
     def output_FUNC(input_userID):
