@@ -385,22 +385,6 @@ function give_ALL_THE_data_in_table(ref){
     return table_output
 }
 
-//Get stuff like the users name, and account credit balance
-function get_balance_info(ref){
-    credit_balance_selector = 'span.main_balance_span.balance_negative';
-    if(ref.exists(credit_balance_selector)) {
-        ref.echo(parseFloat(ref.getElementInfo(credit_balance_selector).text.replace(",", ".")));
-        return parseFloat(ref.getElementInfo(credit_balance_selector).text.replace(",", "."));
-    }
-    else{//Looks like the balance is positive $_$
-        credit_balance_selector = 'span.main_balance_span';
-        if(ref.exists(credit_balance_selector)) {
-            ref.echo(parseFloat(ref.getElementInfo(credit_balance_selector).text.replace(",", ".")));
-            return parseFloat(ref.getElementInfo(credit_balance_selector).text.replace(",", "."));
-        }
-    }
-    return -1;
-}
 
 function extract_json_file(){
     var output_filename = 'output_PRI_'+parsed_input_JSON.chat_id + '.json';

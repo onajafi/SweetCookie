@@ -202,14 +202,24 @@ function give_meal_data_in_table(ref){
 function get_balance_info(ref){
     credit_balance_selector = 'span.main_balance_span.balance_negative';
     if(ref.exists(credit_balance_selector)) {
-        ref.echo(parseFloat(ref.getElementInfo(credit_balance_selector).text.replace(",", ".")));
-        return parseFloat(ref.getElementInfo(credit_balance_selector).text.replace(",", "."));
+        the_text = ref.getElementInfo(credit_balance_selector).text.replace(",", ".");
+        if(the_text.indexOf('.') == -1) {
+            //Remove the negative sign
+            the_text = ref.getElementInfo(credit_balance_selector).text.replace("-", "");
+            the_text = "-0." + the_text;
+        }
+        ref.echo(parseFloat(the_text));
+        return parseFloat(the_text);
     }
     else{//Looks like the balance is positive $_$
         credit_balance_selector = 'span.main_balance_span';
         if(ref.exists(credit_balance_selector)) {
-            ref.echo(parseFloat(ref.getElementInfo(credit_balance_selector).text.replace(",", ".")));
-            return parseFloat(ref.getElementInfo(credit_balance_selector).text.replace(",", "."));
+            the_text = ref.getElementInfo(credit_balance_selector).text.replace(",", ".");
+            if(the_text.indexOf('.') == -1) {
+                the_text = "0." + the_text;
+            }
+            ref.echo(parseFloat(the_text));
+            return parseFloat(the_text);
         }
     }
     return -1;
