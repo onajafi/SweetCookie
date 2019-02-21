@@ -9,7 +9,6 @@ import trafficController
 import threading, datetime
 
 
-#TODO update the help message
 #TODO implement a cancel commad for the reserved meal
 #TODO make every message to send the reply markup
 #TODO fix the fcode for dinner
