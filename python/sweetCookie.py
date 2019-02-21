@@ -10,7 +10,6 @@ import threading, datetime
 
 
 #TODO implement a cancel commad for the reserved meal
-#TODO make every message to send the reply markup
 #TODO fix the fcode for dinner
 
 @bot.message_handler(commands=['start'])

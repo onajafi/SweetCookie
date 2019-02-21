@@ -535,7 +535,7 @@ def update_DINING_UserPass(userID,username_DINING,password_DINING):
 
 def send_commandlist(userID):
     try:
-        bot.send_message(userID, MSGs.how_to_use)
+        bot.send_message(userID, MSGs.how_to_use,reply_markup=MSGs.simple_MAIN_markup)
     except:
         bot.send_message(userID, MSGs.we_cant_do_it_now)
         Error_Handle.log_error("ERROR: users.send_commandlist")
@@ -740,7 +740,7 @@ def extract_DINING_data(userID,PLCnum):
                 message_TXT += dinner["meal_name"]
                 message_TXT += '\n'
 
-        bot.send_message(userID,message_TXT)
+        bot.send_message(userID,message_TXT,reply_markup=MSGs.simple_MAIN_markup)
         return None
     except:
         bot.send_message(userID,MSGs.we_cant_do_it_now)
@@ -851,7 +851,7 @@ def extract_DINING_next_weeks_data(userID,PLCnum):
                 message_TXT += dinner["meal_name"]
                 message_TXT += '\n'
 
-        bot.send_message(userID,message_TXT)
+        bot.send_message(userID,message_TXT,reply_markup=MSGs.simple_MAIN_markup)
         return None
     except:
         bot.send_message(userID, MSGs.we_cant_do_it_now)
