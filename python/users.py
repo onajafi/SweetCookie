@@ -37,6 +37,7 @@ call_ORDER_NEXT_WEEK_pattern = re.compile("^ORDER_NEXT_WEEK_[0-9]{1,2}$")
 call_PRIORITY_pattern = re.compile("^PRI_[0-9]{1,2}$")
 call_AUTO_RES_pattern = re.compile("^AUTO_RES_[A-Z]{1,2}$")
 call_AUTO_RES_DAY_SEL_pattern = re.compile("^AUTO_RES_DAY_SEL_[0-9]{1,2}$")
+MSG_PRI_CHANGE_pattern = re.compile("[ _+]*[0-9]+[ _-]+[0-9]+")
 message_number = re.compile("^[0-9]*$")
 
 serve_times_in_a_week = { 1: "شنبه - ناهار",
@@ -62,6 +63,21 @@ def FA_UNI_to_EN_DIGIT_CONV(FAnumber):
     for dig in FAnumber:
         try:
             ENnumber = ENnumber + str(int(dig))
+        except:
+            pass
+    return ENnumber
+
+def FA_UNI_to_EN_DIGIT_CONV_save_spaces(FAnumber):
+    ENnumber = ""
+    # uniFAnum = unicode(FAnumber, "utf-32")
+    for dig in FAnumber:
+        try:
+            if(dig in (' ','+','_')):
+                ENnumber = ENnumber + ' '
+            elif(dig == '-'):
+                ENnumber = ENnumber + '-'
+            else:
+                ENnumber = ENnumber + str(int(dig))
         except:
             pass
     return ENnumber
@@ -129,8 +145,50 @@ def process_user_MSG(userID, message_TXT,message):
             bot.send_message(tmp_resp_ID,message_TXT)
             bot.send_message(feedBack_target_chat, "Sent :)")
             users_book[userID]["state"] = None
-        elif (users_book[userID]["state"] == "AUTO_RES_A"):  # In this state the user is able to change the priority list
-            pass # TODO do we have to do something with this? or should we stick with the user friendly plan?
+
+        # In this state the user is able to change the priority list
+        elif (users_book[userID]["state"] == "AUTO_RES_A" and
+              MSG_PRI_CHANGE_pattern.match(FA_UNI_to_EN_DIGIT_CONV_save_spaces(message_TXT))):
+
+            numbers = re.findall('-?[0-9]+', FA_UNI_to_EN_DIGIT_CONV_save_spaces(message_TXT))
+            rowNum = int(numbers[0])
+            point = int(numbers[1])
+            selected_meal_txt = None
+
+            sorted_data = users_pri_list[userID]
+            for idx, elem in enumerate(sorted_data):
+                if ((idx + 1) == rowNum):
+                    sorted_data.append((elem[0],point))
+                    selected_meal_txt = elem[0]
+                    del sorted_data[idx]
+                    break
+
+            if (selected_meal_txt == None):
+                bot.send_message(userID,MSGs.out_of_range_row_num)
+                print "Error: wrong row number input!"
+                return
+
+            sorted_data = sorted(sorted_data, key=operator.itemgetter(1), reverse=True)
+
+            message_TXT = ""
+            for idx, elem in enumerate(sorted_data):
+                if (selected_meal_txt == elem[0]):  # It's the MEAL!!!
+                    message_TXT += '<strong>' + str(idx + 1) + '. ' + elem[0] + ': ' + str(elem[1]) + '</strong>'
+                else:
+                    message_TXT += str(idx + 1) + '. ' + elem[0] + ': ' + str(elem[1])
+
+                message_TXT += '\n'
+
+            temp_user_markup = types.InlineKeyboardMarkup(row_width=1)
+            temp_user_markup.add(types.InlineKeyboardButton('مرحله بعد', callback_data='AUTO_RES_A'))
+
+            users_pri_list[userID] = sorted_data
+            dataBase.update_PRI_LIST_database(userID, sorted_data)
+            bot.send_message(userID,
+                             "لیست اولویت‌های غذایی شما:\n" + message_TXT,
+                             reply_markup=temp_user_markup,
+                             parse_mode="HTML")
+
         elif(users_book[userID]["state"] == "getIncCreditAmount"):
             users_book[userID]["state"] = None
             number_val = FA_UNI_to_EN_DIGIT_CONV(message_TXT)
@@ -172,7 +230,8 @@ def process_user_MSG(userID, message_TXT,message):
                     bot.send_message(userID, response)
                 trafficController.finished_process(userID, 'COMM_help')
         else:
-            pass
+            print "MSG: unknown type"
+            bot.send_message(userID,"هان؟")
     except:
         bot.send_message(userID, MSGs.we_cant_do_it_now)
         Error_Handle.log_error("ERROR: users.process_user_MSG")
@@ -343,8 +402,9 @@ def process_user_call(userID,call_TXT,ACT_call):
                 if response is not None:
                     bot.send_message(userID, response)
                 trafficController.finished_process(userID, 'get_pri')
-
+            bot.send_message(userID, MSGs.how_to_set_priotrities)
             users_book[userID]["state"] = "AUTO_RES_A"
+
         elif(users_book[userID]["state"] == "AUTO_RES_A" and call_TXT == 'AUTO_RES_A'):# TODO Here we have to save the current list in the database
 
             bot.edit_message_reply_markup(userID, ACT_call.message.message_id, reply_markup=MSGs.none_markup)
@@ -1136,7 +1196,7 @@ def extract_DINING_priority(userID,PLCnum):
         temp_user_markup = types.InlineKeyboardMarkup(row_width=1)
         temp_user_markup.add(types.InlineKeyboardButton('مرحله بعد',callback_data='AUTO_RES_A'))
 
-        bot.send_message(userID,"لیست اولویت‌های غذایی شما:\n" + message_TXT,reply_markup=temp_user_markup)
+        message_reply_data = bot.send_message(userID,"لیست اولویت‌های غذایی شما:\n" + message_TXT,reply_markup=temp_user_markup)
         dataBase.update_PRI_LIST_database(userID,sorted_data)
         users_pri_list[userID] = sorted_data
         return None
@@ -1165,7 +1225,7 @@ def STARTset_auto_res(userID):# TODO test this with a proper account
             if response is not None:
                 bot.send_message(userID, response)
             trafficController.finished_process(userID, 'get_pri')
-
+        bot.send_message(userID, MSGs.how_to_set_priotrities)
         users_book[userID]["state"] = "AUTO_RES_A"
     else:
         bot.send_message(userID, MSGs.no_selected_PLCs)
