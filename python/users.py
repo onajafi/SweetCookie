@@ -474,7 +474,7 @@ def process_user_call(userID,call_TXT,ACT_call):
 
             bot.edit_message_reply_markup(userID, ACT_call.message.message_id, reply_markup=SERVE_markup)
 
-        elif (users_book[userID]["state"] == "AUTO_RES_SEL_DAYS" and call_TXT == "AUTO_RES_DAY_SEL_DONE"):
+        elif(users_book[userID]["state"] == "AUTO_RES_SEL_DAYS" and call_TXT == "AUTO_RES_DAY_SEL_DONE"):
             print "users_pri_list",users_pri_list
             print "users_auto_res_days", users_auto_res_days
             dataBase.update_PRI_LIST_database(userID, users_pri_list[userID], users_auto_res_days[userID])
@@ -505,6 +505,12 @@ def process_user_call(userID,call_TXT,ACT_call):
                 MSG_sel_PLCs = "هنوز جایی برای رزرو وعده انتخاب نشده... :(\nاز دستور /set_places استفاده کنید.\n"
 
             bot.send_message(userID, MSGs.auto_res_is_setup_PARTA + MSG_sel_PLCs + MSGs.auto_res_is_setup_PARTC, reply_markup=MSGs.simple_MAIN_markup)
+
+        elif(users_book[userID]["state"] == "CANCEL_AUTO_RES" and call_TXT == "CancelAutoRes"):
+            dataBase.delete_user_AUTO_RES_DATA(userID)
+            del users_auto_res_days[userID]
+            del users_pri_list[userID]
+            bot.send_message(userID,MSGs.auto_res_cancelled)
 
         else:
             print "STEP->3"
@@ -1335,6 +1341,18 @@ def do_DINING_auto_reserve(userID,PLCnum):
         bot.send_message(userID,"رزرو خودکار با موفقیت انجام شد :)")
     extract_DINING_next_weeks_data(userID,PLCnum)
     return None
+
+@Error_Handle.secure_from_exception
+def START_comm_cancel_auto_res(userID):
+    if(userID not in users_pri_list.keys() or
+       len(users_pri_list[userID]) == 0):
+        bot.send_message(userID,MSGs.you_dont_have_auto_res)
+        return
+    bot.send_message(userID,
+                     MSGs.are_you_sure_cancel_auto_res,
+                     reply_markup=MSGs.cancel_auto_res_markup)
+    users_book[userID]["state"] = "CANCEL_AUTO_RES"
+
 
 
 @Error_Handle.secure_from_exception

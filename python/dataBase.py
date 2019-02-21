@@ -142,6 +142,12 @@ def get_users_AUTO_RES_DAYS():
             selected_dates_to_res[elem[0]] = ast.literal_eval(elem[2])
         return selected_dates_to_res
 
+#Delete in DB:
+def delete_user_AUTO_RES_DATA(userID):
+    with sqlite3.connect("../users.sqlite") as conn:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM auto_res_data WHERE u_id=?",(userID,))
+
 with sqlite3.connect("../users.sqlite") as conn:
     cur = conn.cursor()
     cur.execute("CREATE TABLE IF NOT EXISTS users("

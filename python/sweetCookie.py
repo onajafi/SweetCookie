@@ -8,8 +8,8 @@ import dataBase
 import trafficController
 import threading, datetime
 
-#TODO make the option to change the priority list
-#TODO add a command to turn off the auto res
+
+#TODO update the help message
 #TODO implement a cancel commad for the reserved meal
 #TODO make every message to send the reply markup
 #TODO fix the fcode for dinner
@@ -79,7 +79,7 @@ def test_FUNC(message):
         trafficController.finished_process(message.chat.id, 'inc_credit')
 
 @bot.message_handler(commands=['set_auto_res'])
-def COMM_get_pri(message):
+def COMM_set_auto_res(message):
     check = trafficController.check_spam(message.chat.id, 'COMM_get_pri')
     if check == "OK":
         response = users.STARTset_auto_res(message.chat.id)
@@ -88,7 +88,7 @@ def COMM_get_pri(message):
         trafficController.finished_process(message.chat.id, 'COMM_get_pri')
 
 @bot.message_handler(commands=['test_auto_res'])
-def COMM_get_pri(message):
+def COMM_test_auto_res(message):
     check = trafficController.check_spam(message.chat.id, 'COMM_test_auto_res')
     if check == "OK":
         response = users.START_comm_to_test_auto_res(message.chat.id)
@@ -96,6 +96,14 @@ def COMM_get_pri(message):
             bot.send_message(message.chat.id, response)
         trafficController.finished_process(message.chat.id, 'COMM_test_auto_res')
 
+@bot.message_handler(commands=['cancel_auto_res'])
+def COMM_test_auto_res(message):
+    check = trafficController.check_spam(message.chat.id, 'COMM_cancel_auto_res')
+    if check == "OK":
+        response = users.START_comm_cancel_auto_res(message.chat.id)
+        if response is not None:
+            bot.send_message(message.chat.id, response)
+        trafficController.finished_process(message.chat.id, 'COMM_cancel_auto_res')
 
 @bot.message_handler(commands=['test'])
 def COMM_ordermeal(message):

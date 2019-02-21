@@ -18,6 +18,9 @@ get_forgotten_code.add(types.InlineKeyboardButton('دریافت کد فرامو�
 reserve_time_markup = types.InlineKeyboardMarkup(row_width=1)
 reserve_time_markup.add(types.InlineKeyboardButton('رزرو هفته بعد',callback_data='OrderNextWeek'))
 
+cancel_auto_res_markup = types.InlineKeyboardMarkup(row_width=1)
+cancel_auto_res_markup.add(types.InlineKeyboardButton('لغو رزرو خودکار',callback_data='CancelAutoRes'))
+
 simple_MAIN_markup = types.ReplyKeyboardMarkup()
 simple_BTN_res = types.KeyboardButton(emojize('رزرو هفته بعد:telephone:', use_aliases=True))
 simple_BTN_Show_This_week = types.KeyboardButton(emojize('نمایش هفته جاری:chart_with_downwards_trend:', use_aliases=True))
@@ -25,6 +28,7 @@ simple_BTN_FCode = types.KeyboardButton(emojize('دریافت کد فراموش�
 simple_BTN_ADV = types.KeyboardButton(emojize('لیست دستورات:ledger:', use_aliases=True))
 simple_MAIN_markup.row(simple_BTN_res,simple_BTN_Show_This_week)
 simple_MAIN_markup.row(simple_BTN_FCode,simple_BTN_ADV)
+
 
 greetings = """سلام،
 این بات برای سهولت رزرو از سایت dining.sharif.edu ساخته شده است.
@@ -99,7 +103,8 @@ payment_warning = emojize( """نکات زیر را حتما بخوانید:
 
 auto_res_is_setup_PARTA = "رزرو خودکار برای شما فعال شد\nهر سه شنبه بعد از ظهر، بات برای شما رزرو را انجام می‌دهد\n"
 
-auto_res_is_setup_PARTC = "با وارد کردن دستور /test_auto_res می‌توانید عملیات رزرو خودکار را تست کنید."
+auto_res_is_setup_PARTC = "با وارد کردن دستور /test_auto_res می‌توانید عملیات رزرو خودکار را تست کنید." \
+                          "برای لغو رزرو خودکار از دستور /cancel_auto_res استفاده کنید."
 
 please_setup_the_auto_res = "ابتدا باید تنظیمات رزرو خودکار را انجام دهید\n دستور زیر را وارد کنید:\n" \
                             "/set_auto_res"
@@ -113,5 +118,14 @@ how_to_set_priotrities = """برای تغییر لیست بالا ابتدا ش�
 
 در غیر این صورت دکمه مرحله بعد را انتخاب کنید.
 ‌"""
+
+are_you_sure_cancel_auto_res = "آیا مطمئنید که می‌خواهید رزرو خودکار را لغو کنید؟\n" \
+                               "با انجام این کار تمام اطلاعت مربوط به رزرو خودکار (اولویت‌ها و وعده‌های انتخاب شده)پاک خواهد شد."
+
+auto_res_cancelled = "رزرو خودکار با موفقیت لغو شد.\n" \
+                     "از این به بعد بات هر سه شنبه بعد از ظهر یک پیام یادآوری رزرو ارسال خواهد کرد.\n" \
+                     "‌"
+
+you_dont_have_auto_res = "رزرو خودکاری برای این کاربر تعریف نشده :))"
 
 
