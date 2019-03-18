@@ -590,10 +590,10 @@ def get_DINING_forgotten_code(userID,PLCnum):
                                                           PLCnum,
                                                           meal_type)
             print temp_data
-            if(temp_data == None):
-                bot.send_message(userID,MSGs.we_cant_do_it_now)
-                return
-            if (temp_data["ENTRY_STATE"] == "BAD"):
+            # if(temp_data == None):
+            #     bot.send_message(userID,MSGs.we_cant_do_it_now)
+            #     return
+            if (temp_data == None or temp_data["ENTRY_STATE"] == "BAD"):
                 bot.send_message(userID, MSGs.trying_again)
                 attempts = attempts + 1
                 continue
@@ -668,10 +668,10 @@ def extract_DINING_data(userID,PLCnum):
                                               userID,
                                               PLCnum)
             print temp_data
-            if (temp_data == None):
-                bot.send_message(userID, MSGs.we_cant_do_it_now)
-                return
-            if(temp_data["ENTRY_STATE"] == "BAD"):
+            # if (temp_data == None):
+            #     bot.send_message(userID, MSGs.we_cant_do_it_now)
+            #     return
+            if(temp_data == None or temp_data["ENTRY_STATE"] == "BAD"):
                 bot.send_message(userID,MSGs.trying_again)
                 attempts = attempts + 1
                 continue
@@ -785,7 +785,7 @@ def extract_DINING_next_weeks_data(userID,PLCnum):
                                                           userID,
                                                           PLCnum)
             print str(temp_data)
-            if (temp_data["ENTRY_STATE"] == "BAD"):
+            if (temp_data == None or temp_data["ENTRY_STATE"] == "BAD"):
                 bot.send_message(userID, MSGs.trying_again)
                 attempts = attempts + 1
                 continue
@@ -868,10 +868,10 @@ def extract_DINING_places(userID):
                                                           users_book[userID]["pass"],
                                                           userID)
             print temp_data
-            if(temp_data == None):
-                bot.send_message(userID,MSGs.we_cant_do_it_now)
-                return
-            if (temp_data["ENTRY_STATE"] == "BAD"):
+            # if(temp_data == None):
+            #     bot.send_message(userID,MSGs.we_cant_do_it_now)
+            #     return
+            if (temp_data == None or temp_data["ENTRY_STATE"] == "BAD"):
                 bot.send_message(userID, MSGs.trying_again)
                 attempts = attempts + 1
                 continue
@@ -995,8 +995,8 @@ def order_meal_next_week(userID,PLCnum):
                                                                     users_book[userID]["pass"],
                                                                     userID,
                                                                     PLCnum)
-            print temp_data
-            if (temp_data["ENTRY_STATE"] == "BAD"):
+            # print temp_data
+            if (temp_data == None or temp_data["ENTRY_STATE"] == "BAD"):
                 bot.send_message(userID, MSGs.trying_again)
                 attempts = attempts + 1
                 continue
@@ -1179,7 +1179,7 @@ def extract_DINING_priority(userID,PLCnum):
                                                           userID,
                                                           PLCnum)
             print str(temp_data)
-            if (temp_data["ENTRY_STATE"] == "BAD"):
+            if (temp_data == None or temp_data["ENTRY_STATE"] == "BAD"):
                 bot.send_message(userID, MSGs.trying_again)
                 attempts = attempts + 1
                 continue
@@ -1245,7 +1245,7 @@ def START_comm_to_test_auto_res(userID):# This is for testing the reserve
 
     selected_PLCs = get_selected_PLCs(userID)
 
-    if (len(selected_PLCs) > 1):  # It's not empty #TODO test this (it's going to reserve in all the places)
+    if (len(selected_PLCs) > 1):  # It's not empty # test this (it's going to reserve in all the places)
 
         for elem in selected_PLCs:
             trafficController.drop_check(userID)
@@ -1318,8 +1318,8 @@ def do_DINING_auto_reserve(userID,PLCnum):
                                                             PLCnum,
                                                             pri_dict,
                                                             users_auto_res_days[userID])#TODO add this to the function input
-        print str(temp_data)
-        if (temp_data["ENTRY_STATE"] == "BAD"):
+        # print str(temp_data)
+        if (temp_data == None or temp_data["ENTRY_STATE"] == "BAD"):
             # bot.send_message(userID, MSGs.trying_again)
             attempts = attempts + 1
             continue
@@ -1336,7 +1336,7 @@ def do_DINING_auto_reserve(userID,PLCnum):
         return MSGs.your_password_is_wrong
 
     if(temp_data["Balance"] < -20.000):
-        return "میزان اعتبار شما از حداقل مجاز کمتر است" + '\n' + temp_data["Balance"]
+        return "میزان اعتبار شما از حداقل مجاز کمتر است" + '\n' + str(temp_data["Balance"])
     else:
         bot.send_message(userID,"رزرو خودکار با موفقیت انجام شد :)")
     extract_DINING_next_weeks_data(userID,PLCnum)
