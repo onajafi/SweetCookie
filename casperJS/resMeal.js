@@ -109,9 +109,19 @@ casper.then(function() {
             var cart_button_selector = 'tr:nth-child(' + (Number(key) + 1)
             + ') > td:nth-child('+ column +') > div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + (Number(order_list[key]) + 1)
             + ') > span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip';
-        }else{
+        }else if(Number(key) < 14){
             column = '3';
             var cart_button_selector = 'tr:nth-child(' + (Number(key) -6)
+            + ') > td:nth-child('+ column +') > div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + (Number(order_list[key]) + 1)
+            + ') > span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip';
+        }else if(Number(key) < 21){
+            column = '4';
+            var cart_button_selector = 'tr:nth-child(' + (Number(key) -13)
+            + ') > td:nth-child('+ column +') > div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + (Number(order_list[key]) + 1)
+            + ') > span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip';
+        }else if(Number(key) < 28){
+            column = '5';
+            var cart_button_selector = 'tr:nth-child(' + (Number(key) -20)
             + ') > td:nth-child('+ column +') > div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + (Number(order_list[key]) + 1)
             + ') > span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip';
         }

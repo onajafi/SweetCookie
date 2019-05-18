@@ -55,6 +55,22 @@ serve_times_in_a_week = { 1: "شنبه - ناهار",
                         12: "چهارشنبه - شام",
                         13: "پنج‌شنبه - شام",
                         14: "جمعه - شام",
+
+                        15: "شنبه - سحری",
+                        16: "یک‌شنبه - سحری",
+                        17: "دوشنبه - سحری",
+                        18: "سه‌شنبه - سحری",
+                        19: "چهارشنبه - سحری",
+                        20: "پنج‌شنبه - سحری",
+                        21: "جمعه - سحری",
+
+                        22: "شنبه - افطار",
+                        23: "یک‌شنبه - افطار",
+                        24: "دوشنبه - افطار",
+                        25: "سه‌شنبه - افطار",
+                        26: "چهارشنبه - افطار",
+                        27: "پنج‌شنبه - افطار",
+                        28: "جمعه - افطار",
                        }
 
 def FA_UNI_to_EN_DIGIT_CONV(FAnumber):
@@ -274,7 +290,7 @@ def process_user_call(userID,call_TXT,ACT_call):
             else:
                 appending_ans = user_meal_menu[userID][users_book[userID]["state"] - 1]["lunch_arr"][int(call_TXT)]["meal_name"]
 
-            bot.edit_message_text(text = ACT_call.message.text +"\n" + appending_ans,
+            bot.edit_message_text(text = ACT_call.message.text + "\n" + appending_ans,
                                   chat_id = userID,
                                   message_id = ACT_call.message.message_id,
                                   reply_markup = None)
@@ -290,13 +306,48 @@ def process_user_call(userID,call_TXT,ACT_call):
             if (call_TXT == "nevermind"):
                 appending_ans = "چیزی نمی‌خوام"
             else:
-                appending_ans = user_meal_menu[userID][users_book[userID]["state"] - 8]["dinner_arr"][int(call_TXT)][
-                    "meal_name"]
+                appending_ans = user_meal_menu[userID][users_book[userID]["state"] - 8]["dinner_arr"][int(call_TXT)]["meal_name"]
 
-            bot.edit_message_text(text=ACT_call.message.text + "\n" + appending_ans,
-                                  chat_id=userID,
-                                  message_id=ACT_call.message.message_id,
-                                  reply_markup=None)
+            bot.edit_message_text(text = ACT_call.message.text + "\n" + appending_ans,
+                                  chat_id = userID,
+                                  message_id = ACT_call.message.message_id,
+                                  reply_markup = None)
+            user_order_list[userID][users_book[userID]["state"] - 1] = call_TXT
+
+            check = trafficController.check_spam(userID, "SCRIPT")
+            if check == "OK":
+                ask_to_choose_meal(userID)
+                trafficController.finished_process(userID, "SCRIPT")
+
+        elif (users_book[userID]["state"] in range(15, 22) and call_TXT in ("0", "1", "2", "3", "nevermind")):
+
+            if (call_TXT == "nevermind"):
+                appending_ans = "چیزی نمی‌خوام"
+            else:
+                appending_ans = user_meal_menu[userID][users_book[userID]["state"] - 15]["sahar_arr"][int(call_TXT)]["meal_name"]
+
+            bot.edit_message_text(text = ACT_call.message.text + "\n" + appending_ans,
+                                  chat_id = userID,
+                                  message_id = ACT_call.message.message_id,
+                                  reply_markup = None)
+            user_order_list[userID][users_book[userID]["state"] - 1] = call_TXT
+
+            check = trafficController.check_spam(userID, "SCRIPT")
+            if check == "OK":
+                ask_to_choose_meal(userID)
+                trafficController.finished_process(userID, "SCRIPT")
+
+        elif (users_book[userID]["state"] in range(22, 29) and call_TXT in ("0", "1", "2", "3", "nevermind")):
+
+            if (call_TXT == "nevermind"):
+                appending_ans = "چیزی نمی‌خوام"
+            else:
+                appending_ans = user_meal_menu[userID][users_book[userID]["state"] - 22]["eftar_arr"][int(call_TXT)]["meal_name"]
+
+            bot.edit_message_text(text = ACT_call.message.text + "\n" + appending_ans,
+                                  chat_id = userID,
+                                  message_id = ACT_call.message.message_id,
+                                  reply_markup = None)
             user_order_list[userID][users_book[userID]["state"] - 1] = call_TXT
 
             check = trafficController.check_spam(userID, "SCRIPT")
@@ -1124,7 +1175,7 @@ def ask_to_choose_meal(userID):
         Markup = types.InlineKeyboardMarkup(row_width=1)
         message_TXT = ""
 
-        while users_book[userID]["state"] < 14:# 7 days a week for lunch and 7 days for dinner (starts from 0)
+        while users_book[userID]["state"] < 28:# 7 days a week for lunch and 7 days for dinner (starts from 0)
             message_TXT = "انتخاب کنید:\n"
             focused_row = users_book[userID]["state"] % 7
 
@@ -1170,8 +1221,46 @@ def ask_to_choose_meal(userID):
                 else:
                     users_book[userID]["state"] = users_book[userID]["state"] + 1
                     continue
+            elif users_book[userID]["state"] < 21:
+                message_TXT += "\n"
+                message_TXT += "وعده سحری:"
+                something_to_order = False
+                for idx, elem in enumerate(user_meal_menu[userID][focused_row]["sahar_arr"]):# TODO replace all the meal_arrs with dinner_arr or lunch_arr
+                    if (elem["status"] == "AWAITING"):
+                        Markup.add(types.InlineKeyboardButton(
+                            elem["meal_name"],
+                            callback_data=str(idx)))
+                        something_to_order = True
 
-        if(users_book[userID]["state"] == 14):# process the request here
+                if (something_to_order):
+                    Markup.add(types.InlineKeyboardButton(
+                        "نمی‌خوام",
+                        callback_data="nevermind"))
+                    break
+                else:
+                    users_book[userID]["state"] = users_book[userID]["state"] + 1
+                    continue
+            elif users_book[userID]["state"] < 28:
+                message_TXT += "\n"
+                message_TXT += "وعده افطاری:"
+                something_to_order = False
+                for idx, elem in enumerate(user_meal_menu[userID][focused_row]["eftar_arr"]):# TODO replace all the meal_arrs with dinner_arr or lunch_arr
+                    if (elem["status"] == "AWAITING"):
+                        Markup.add(types.InlineKeyboardButton(
+                            elem["meal_name"],
+                            callback_data=str(idx)))
+                        something_to_order = True
+
+                if (something_to_order):
+                    Markup.add(types.InlineKeyboardButton(
+                        "نمی‌خوام",
+                        callback_data="nevermind"))
+                    break
+                else:
+                    users_book[userID]["state"] = users_book[userID]["state"] + 1
+                    continue
+
+        if(users_book[userID]["state"] == 28):# process the request here
             users_book[userID]["state"] = None
             bot.send_message(userID, "در حال ثبت درخواست...")
             # processing the request:
