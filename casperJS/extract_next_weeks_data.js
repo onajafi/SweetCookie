@@ -27,9 +27,13 @@ casper.start('http://dining.sharif.edu/login');
 
 //NEW
 function give_ALL_THE_data_in_row(ref,row_num){
+
+    date_selector = 'table.table.sharif-table.table-bordered.table-condensed > tbody > tr:nth-child('+ row_num +') > th';
     lunch_block_selector = 'table.table.sharif-table.table-bordered.table-condensed > tbody > tr:nth-child('+ row_num +') > td:nth-child(2)';
     dinner_block_selector = 'table.table.sharif-table.table-bordered.table-condensed > tbody > tr:nth-child('+ row_num +') > td:nth-child(3)';
-    date_selector = 'table.table.sharif-table.table-bordered.table-condensed > tbody > tr:nth-child('+ row_num +') > th';
+    sahar_block_selector = 'table.table.sharif-table.table-bordered.table-condensed > tbody > tr:nth-child('+ row_num +') > td:nth-child(4)';
+    eftar_block_selector = 'table.table.sharif-table.table-bordered.table-condensed > tbody > tr:nth-child('+ row_num +') > td:nth-child(5)';
+
     temp_output = {};
     if(ref.exists(date_selector)){
         // ref.echo(ref.getElementInfo(date_selector).text);
@@ -121,40 +125,11 @@ function give_ALL_THE_data_in_row(ref,row_num){
         ref.echo("EMPTY DINNER ROW: " + row_num)
     }
 
-    return temp_output;
-}
-
-function give_ALL_THE_data_in_table(ref){
-    var table_output=[];
-    for(var j=1;j<=7;j++){
-        ref.echo('================');
-        table_output.push(give_ALL_THE_data_in_row(ref,j));
-    }
-    return table_output
-}
-
-//OLD
-function give_meals_data_in_row(ref,row_num){
-    lunch_block_selector = 'table.table.sharif-table.table-bordered.table-condensed > tbody > tr:nth-child('+ row_num +') > td.text-right'
-    date_selector = 'table.table.sharif-table.table-bordered.table-condensed > tbody > tr:nth-child('+ row_num +') > th'
-    temp_output = {};
-    if(ref.exists(date_selector)){
-        // ref.echo(ref.getElementInfo(date_selector).text);
-        ref.echo(ref.getElementInfo(date_selector).text.match(week_regex));
-        ref.echo(ref.getElementInfo(date_selector).text.match(date_regex));
-        temp_output["day"] = ref.getElementInfo(date_selector).text.match(week_regex)[0];
-        temp_output["date"] = ref.getElementInfo(date_selector).text.match(date_regex)[0];
-    }
-    else{
-        temp_output["day"] = "";
-        temp_output["date"] = "";
-    }
-
-    temp_output["meal_arr"] = [];
-    if(ref.exists(lunch_block_selector)) {
-        ref.echo(ref.getElementInfo(lunch_block_selector).text);
+    temp_output["sahar_arr"] = [];
+    if(ref.exists(sahar_block_selector)) {
+        ref.echo(ref.getElementInfo(sahar_block_selector).text);
         for(var i=1;;i++) {
-            meal_selector = lunch_block_selector + '> div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + i + ')';
+            meal_selector = sahar_block_selector + '> div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + i + ')';
             if (ref.exists(meal_selector)) {
                 var temp_meal = {};
                 meal_dat = ref.getElementInfo(meal_selector);
@@ -179,26 +154,67 @@ function give_meals_data_in_row(ref,row_num){
                     ref.echo("Nope you lost it!!!");
                     temp_meal["status"] = "FAILED";
                 }
-                temp_output["meal_arr"].push(temp_meal);
+                temp_output["sahar_arr"].push(temp_meal);
             }else {
                 break;
             }
         }
     }else{
         // ref.echo("INCORRECT ROW NUMBER: " + row_num);
-        ref.echo("EMPTY ROW: " + row_num)
+        ref.echo("EMPTY SAHAR ROW: " + row_num)
     }
+
+    temp_output["eftar_arr"] = [];
+    if(ref.exists(eftar_block_selector)) {
+        ref.echo(ref.getElementInfo(eftar_block_selector).text);
+        for(var i=1;;i++) {
+            meal_selector = eftar_block_selector + '> div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + i + ')';
+            if (ref.exists(meal_selector)) {
+                var temp_meal = {};
+                meal_dat = ref.getElementInfo(meal_selector);
+                ref.echo("++++" + i);
+                ref.echo(meal_dat.text);
+                temp_meal["meal_name"] = meal_dat.text;
+
+                //Check if it has been reserved:
+                if(ref.exists(meal_selector + '> span.fa.fa-check.fa-lg.has-left-margin.has_tooltip')){
+                    ref.echo('CONFIRMED!');
+                    temp_meal["status"] = "OK_DONE";
+                }
+                else if(ref.exists(meal_selector + '> span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip')){
+                    ref.echo("You can still get it...");
+                    temp_meal["status"] = "AWAITING";
+                }
+                else if(ref.exists(meal_selector + '> span.fa.fa-times-circle.fa-lg.has-left-margin.cursor_pointer.has_tooltip')){
+                    ref.echo('Confirmed - But may get canceled...');
+                    temp_meal["status"] = "OK_AWAITING";
+                }
+                else{
+                    ref.echo("Nope you lost it!!!");
+                    temp_meal["status"] = "FAILED";
+                }
+                temp_output["eftar_arr"].push(temp_meal);
+            }else {
+                break;
+            }
+        }
+    }else{
+        // ref.echo("INCORRECT ROW NUMBER: " + row_num);
+        ref.echo("EMPTY EFTAR ROW: " + row_num)
+    }
+
     return temp_output;
 }
 
-function give_meal_data_in_table(ref){
+function give_ALL_THE_data_in_table(ref){
     var table_output=[];
     for(var j=1;j<=7;j++){
         ref.echo('================');
-        table_output.push(give_meals_data_in_row(ref,j));
+        table_output.push(give_ALL_THE_data_in_row(ref,j));
     }
     return table_output
 }
+
 
 //Get stuff like the users name, and account credit balance
 function get_balance_info(ref){
@@ -288,7 +304,6 @@ casper.then(function() {
         this.wait(4000, function(){this.echo('Waiting finished')});
     })
     .then(function(){
-        output_for_JSON["Table"] = give_meal_data_in_table(this);
         output_for_JSON["COMPLETE_TABLE"] = give_ALL_THE_data_in_table(this);
         this.echo("------------------------------------------------");
         output_for_JSON["Balance"] = get_balance_info(this);

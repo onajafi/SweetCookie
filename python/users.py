@@ -719,9 +719,10 @@ def extract_DINING_data(userID,PLCnum):
                 message_TXT += lunch["meal_name"]
                 message_TXT += '\n'
 
+            # Dinner:
             if (row["dinner_arr"] and row["lunch_arr"]):
                 message_TXT += "*****\n"
-            # Dinner:
+
             if(row["dinner_arr"]):
                 message_TXT += "شام:"
                 message_TXT += "\n"
@@ -739,6 +740,51 @@ def extract_DINING_data(userID,PLCnum):
 
                 message_TXT += dinner["meal_name"]
                 message_TXT += '\n'
+
+            # Sahar:
+            if (row["sahar_arr"] and (row["dinner_arr"] or row["lunch_arr"])):
+                message_TXT += "*****\n"
+
+            if (row["sahar_arr"]):
+                message_TXT += "سحری:"
+                message_TXT += "\n"
+            for dinner in row["sahar_arr"]:
+
+                # message_TXT += "------------------\n"
+                if (dinner["status"] == "OK_DONE"):
+                    message_TXT += emojize("✅ ")
+                elif (dinner["status"] == "AWAITING"):
+                    message_TXT += emojize("🛒 ")
+                elif (dinner["status"] == "OK_AWAITING"):
+                    message_TXT += emojize("✅ ")
+                elif (dinner["status"] == "FAILED"):
+                    message_TXT += emojize("❌ ")
+
+                message_TXT += dinner["meal_name"]
+                message_TXT += '\n'
+
+            # Eftar:
+            if (row["eftar_arr"] and (row["sahar_arr"] or row["dinner_arr"] or row["lunch_arr"])):
+                message_TXT += "*****\n"
+
+            if (row["eftar_arr"]):
+                message_TXT += "افطاری:"
+                message_TXT += "\n"
+            for dinner in row["eftar_arr"]:
+
+                # message_TXT += "------------------\n"
+                if (dinner["status"] == "OK_DONE"):
+                    message_TXT += emojize("✅ ")
+                elif (dinner["status"] == "AWAITING"):
+                    message_TXT += emojize("🛒 ")
+                elif (dinner["status"] == "OK_AWAITING"):
+                    message_TXT += emojize("✅ ")
+                elif (dinner["status"] == "FAILED"):
+                    message_TXT += emojize("❌ ")
+
+                message_TXT += dinner["meal_name"]
+                message_TXT += '\n'
+
 
         bot.send_message(userID,message_TXT,reply_markup=MSGs.simple_MAIN_markup)
         return None
@@ -818,7 +864,7 @@ def extract_DINING_next_weeks_data(userID,PLCnum):
             for lunch in row["lunch_arr"]:
 
                 # message_TXT += "------------------\n"
-                if(lunch["status"] == "OK_DONE"):
+                if (lunch["status"] == "OK_DONE"):
                     message_TXT += emojize("✅ ")
                 elif (lunch["status"] == "AWAITING"):
                     message_TXT += emojize("🛒 ")
@@ -830,10 +876,11 @@ def extract_DINING_next_weeks_data(userID,PLCnum):
                 message_TXT += lunch["meal_name"]
                 message_TXT += '\n'
 
+            # Dinner:
             if (row["dinner_arr"] and row["lunch_arr"]):
                 message_TXT += "*****\n"
-            # Dinner:
-            if(row["dinner_arr"]):
+
+            if (row["dinner_arr"]):
                 message_TXT += "شام:"
                 message_TXT += "\n"
             for dinner in row["dinner_arr"]:
@@ -850,6 +897,51 @@ def extract_DINING_next_weeks_data(userID,PLCnum):
 
                 message_TXT += dinner["meal_name"]
                 message_TXT += '\n'
+
+            # Sahar:
+            if (row["sahar_arr"] and (row["dinner_arr"] or row["lunch_arr"])):
+                message_TXT += "*****\n"
+
+            if (row["sahar_arr"]):
+                message_TXT += "سحری:"
+                message_TXT += "\n"
+            for dinner in row["sahar_arr"]:
+
+                # message_TXT += "------------------\n"
+                if (dinner["status"] == "OK_DONE"):
+                    message_TXT += emojize("✅ ")
+                elif (dinner["status"] == "AWAITING"):
+                    message_TXT += emojize("🛒 ")
+                elif (dinner["status"] == "OK_AWAITING"):
+                    message_TXT += emojize("✅ ")
+                elif (dinner["status"] == "FAILED"):
+                    message_TXT += emojize("❌ ")
+
+                message_TXT += dinner["meal_name"]
+                message_TXT += '\n'
+
+            # Eftar:
+            if (row["eftar_arr"] and (row["sahar_arr"] or row["dinner_arr"] or row["lunch_arr"])):
+                message_TXT += "*****\n"
+
+            if (row["eftar_arr"]):
+                message_TXT += "افطاری:"
+                message_TXT += "\n"
+            for dinner in row["eftar_arr"]:
+
+                # message_TXT += "------------------\n"
+                if (dinner["status"] == "OK_DONE"):
+                    message_TXT += emojize("✅ ")
+                elif (dinner["status"] == "AWAITING"):
+                    message_TXT += emojize("🛒 ")
+                elif (dinner["status"] == "OK_AWAITING"):
+                    message_TXT += emojize("✅ ")
+                elif (dinner["status"] == "FAILED"):
+                    message_TXT += emojize("❌ ")
+
+                message_TXT += dinner["meal_name"]
+                message_TXT += '\n'
+
 
         bot.send_message(userID,message_TXT,reply_markup=MSGs.simple_MAIN_markup)
         return None
