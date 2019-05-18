@@ -2,8 +2,6 @@
 A better way to reserve your meal in http://dining.sharif.edu/
 
 
-## This project is not fully released yet
-
 ## Setup
 If you want to setup the bot on your own server follow these instructions.
 
