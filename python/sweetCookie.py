@@ -7,10 +7,13 @@ import users
 import dataBase
 import trafficController
 import threading, datetime
+import commercial
+import Error_Handle
 
 
 #TODO implement a cancel commad for the reserved meal
 #TODO fix the fcode for dinner
+
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
@@ -134,11 +137,28 @@ def test_FUNC(message):
 def COMM_respond(message):
     users.process_respond(message.chat.id)
 
+# This command is for the admin:
+@bot.message_handler(commands=['broadcast'])
+def COMM_broadcast(message):
+    users.process_broadcast(message.chat.id)
+
+@bot.message_handler(commands=['cancel'])
+def COMM_cancel(message):
+    users.process_cancel(message.chat.id)
+
 @bot.message_handler(content_types=['text'])
 def text_MSG(message):
     response = users.process_user_MSG(message.chat.id,message.text,message)
     if response is not None:
         bot.send_message(message.chat.id,response)
+
+@bot.message_handler(content_types=['photo'])
+@Error_Handle.secure_from_exception
+def photo_MSG(message):
+    if users.users_book[message.from_user.id]["state"] == "broadcast_waiting_message":
+        print "ITS A PHOTO"
+        print message.json[u'message_id']
+        commercial.broadcast_POST(message)
 
 
 @bot.callback_query_handler(func=lambda call: True)

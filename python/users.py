@@ -132,6 +132,17 @@ def process_respond(userID):
         users_book[userID]["state"] = "respond_waiting_for_ID"
         bot.send_message(userID,"Give the target chat ID:")
 
+def process_broadcast(userID):
+    if(userID == feedBack_target_chat):
+        users_book[userID]["state"] = "broadcast_waiting_message"
+        bot.send_message(userID,"Give the post to forward to everyone:")
+
+@Error_Handle.secure_from_exception
+def process_cancel(userID):
+    users_book[userID]["state"] = None
+    bot.send_message(userID,MSGs.canceled_successfully)
+
+
 def process_user_MSG(userID, message_TXT,message):
     global tmp_resp_ID
     try:

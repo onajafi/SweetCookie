@@ -134,4 +134,7 @@ auto_res_cancelled = "رزرو خودکار با موفقیت لغو شد.\n" \
 
 you_dont_have_auto_res = "رزرو خودکاری برای این کاربر تعریف نشده :))"
 
+canceled_successfully = "عملیات کنسل شد"
+
+
 
