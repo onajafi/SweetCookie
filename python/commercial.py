@@ -11,20 +11,20 @@ def broadcast_POST(message):
             success = 0
             crashes = 0
             for elem in DB_table:
-                # try:
-                bot.forward_message(elem[0],message.chat.id,message.json[u'message_id'])
-                success = success + 1
-                # except:
-                #     print '--------'
-                #     crashes = crashes + 1
-                #     # traceback.print_exc()
-                #     try:# Added this to make sure every thing is running as smooth as possible
-                #         bot.send_message(feedBack_target_chat,"This guy blocked the bot:\n" +
-                #                          str(elem[2]) + "\n" +
-                #                          str(elem[3]) + "\n" +
-                #                          str(elem[0])) #remove this markup after the first announcement
-                #     except:
-                #         pass
+                try:
+                    bot.forward_message(elem[0],message.chat.id,message.json[u'message_id'])
+                    success = success + 1
+                except:
+                    print '--------'
+                    crashes = crashes + 1
+                    # traceback.print_exc()
+                    try:# Added this to make sure every thing is running as smooth as possible
+                        bot.send_message(feedBack_target_chat,"This guy blocked the bot:\n" +
+                                         str(elem[2]) + "\n" +
+                                         str(elem[3]) + "\n" +
+                                         str(elem[0])) #remove this markup after the first announcement
+                    except:
+                        pass
 
             bot.send_message(feedBack_target_chat,"Finished the announcement\nPassed: " +
                              str(success)+
