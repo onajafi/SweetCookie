@@ -142,6 +142,13 @@ def COMM_respond(message):
 def COMM_broadcast(message):
     users.process_broadcast(message.chat.id)
 
+# This command is for the admin:
+@bot.message_handler(commands=['delete_broadcast'])
+@Error_Handle.secure_from_exception
+def photo_MSG(message):
+    if message.from_user.id == feedBack_target_chat:
+        commercial.erase_last_30_MSGs(message.chat.id)
+
 @bot.message_handler(commands=['cancel'])
 def COMM_cancel(message):
     users.process_cancel(message.chat.id)
