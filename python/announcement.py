@@ -11,10 +11,9 @@ import MSGs
 
 # Enter the message here:
 MSG = """سلام،
-آپدیت 1.0
-- اضافه شدن قابلیت رزرو خودکار با زدن دستور:
-/set_auto_res
-- درست شدن یه سری باگ...
+آپدیت 1.2
+- درست شدن رزرو افطار و سحری(رزرو خودکار نداره)
+- دیباگ...
 """
 
 with sqlite3.connect("../users.sqlite") as conn:
