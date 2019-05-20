@@ -130,6 +130,80 @@ casper.then(function() {
         if(ref.exists(cart_button_selector)) {
             ref.thenClick(cart_button_selector);
             ref.echo("FOUND: " + key + " - " + order_list[key])
+            button_arr = ref.getElementsInfo(cart_button_selector);
+            require('utils').dump(button_arr[0]);
+        }else{
+            ref.echo("Didn't find the button: " + key + " - " + order_list[key])
+        }
+    });
+
+    // for(var key in Object.keys(order_list)) {
+    //     this.echo("IN_LOOP:")
+    //     this.echo(key)
+    //     if(order_list[key] == "nevermind"){
+    //         continue;
+    //     }
+    //     var cart_button_selector = 'tr:nth-child(' + (Number(key) + 1)
+    //         + ') > td.text-right > div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + (Number(order_list[key]) + 1)
+    //         + ') > span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip';
+    //
+    //     if(this.exists(cart_button_selector)) {
+    //         this.thenClick(cart_button_selector);
+    //         this.echo("FOUND: " + key + " - " + order_list[key])
+    //     }else{
+    //         this.echo("Didn't find the button: " + key + " - " + order_list[key])
+    //     }
+    // }
+  })
+  .then(function(){
+    this.wait(3000, function(){this.echo('Waiting finished')});
+  })
+  .then(function(){
+    // arrs = this.getElementsInfo('div.food-reserve-diet-div.has-mini-bottom-padding');
+    // button_arr = this.getElementsInfo('span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip');
+    // this.echo(arrs[2].text);
+    //require('utils').dump(button_arr[0]);
+    //this.echo(this.getHTML('span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip:nth-of-type('+'1'+')'));
+    var order_list = parsed_input_JSON["order_list"];
+    this.echo(Object.keys(order_list))
+
+    ref = this;
+    Object.keys(order_list).forEach(function(key) {
+        ref.echo("IN_LOOP:")
+        ref.echo(key)
+        if(order_list[key] == "nevermind"){
+            return;
+        }
+        //Find out if this is a lunch or dinner:
+        var column;
+        if(Number(key) < 7){
+            column = '2';
+            var cart_button_selector = 'tr:nth-child(' + (Number(key) + 1)
+            + ') > td:nth-child('+ column +') > div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + (Number(order_list[key]) + 1)
+            + ') > span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip';
+        }else if(Number(key) < 14){
+            column = '3';
+            var cart_button_selector = 'tr:nth-child(' + (Number(key) -6)
+            + ') > td:nth-child('+ column +') > div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + (Number(order_list[key]) + 1)
+            + ') > span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip';
+        }else if(Number(key) < 21){
+            column = '4';
+            var cart_button_selector = 'tr:nth-child(' + (Number(key) -13)
+            + ') > td:nth-child('+ column +') > div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + (Number(order_list[key]) + 1)
+            + ') > span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip';
+        }else if(Number(key) < 28){
+            column = '5';
+            var cart_button_selector = 'tr:nth-child(' + (Number(key) -20)
+            + ') > td:nth-child('+ column +') > div.food-reserve-diet-div.has-mini-bottom-padding:nth-child(' + (Number(order_list[key]) + 1)
+            + ') > span.fa.fa-shopping-cart.fa-lg.has-left-margin.cursor_pointer.has_tooltip';
+        }
+
+
+        if(ref.exists(cart_button_selector)) {
+            ref.thenClick(cart_button_selector);
+            ref.echo("FOUND: " + key + " - " + order_list[key])
+            button_arr = ref.getElementsInfo(cart_button_selector);
+            require('utils').dump(button_arr[0]);
         }else{
             ref.echo("Didn't find the button: " + key + " - " + order_list[key])
         }
