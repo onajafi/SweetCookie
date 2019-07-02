@@ -262,11 +262,11 @@ def AUTO_RESERVE_TRIG():
 
 
 main_thread = threading.Thread(target = MAIN_THR)
-alarm_thread = threading.Thread(target = TUESDAY_ALARM)
+# alarm_thread = threading.Thread(target = TUESDAY_ALARM)
 
 main_thread.start()
-alarm_thread.start()
+# alarm_thread.start()
 
 main_thread.join()
-alarm_thread.join()
+# alarm_thread.join()
 
