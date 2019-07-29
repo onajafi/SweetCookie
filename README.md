@@ -1,5 +1,42 @@
 # Sweet Cookie
-A better way to reserve your meal in http://dining.sharif.edu/
+A better way to reserve your meal in [dining.sharif.edu](http://dining.sharif.edu/)
+
+## About
+In our university (Sharif University of Technology) 
+most students are able to purchase their lunch or dinner 
+with a cheap price from the _Universities Dining Institution_. However, 
+the meal must be purchased 4 days before the time which it is served.
+
+So every time we had to open the browser and reach to [dining.sharif.edu](http://dining.sharif.edu/), 
+login to our own dining account (Entering our username and password), 
+navigate to the reservation section and click on every meal we wanted for a specific day.
+
+This comes with a problem, A lot of us used to forget the reservation 
+due time and ended up dealing with higher priced meals or in some cases starvation :O
+
+There were different solutions to this problem, the most simplest one 
+was that every time someone noticed the reservation time, he or she would 
+send a message to others as a reminder of the reservation time. Some used 
+to set an alarm. Most of these solutions were useful and were good enough 
+but it still required the user to login and do all the reservation process 
+which was explained above. Most of the time we were getting distracted 
+from reserving the meals and forgetting to complete the reservation process.
+
+Until one day everything changed...
+
+Introducing **SweetCookie**
+
+pic
+
+SweetCookie is the name of a _web crawling_ bot which means it has the ability
+to navigate in different websites as a human user and perform the same tasks that 
+an ordinary user does on a website (e.g. Clicking, Logging in), it uses this 
+ability to navigate into [dining.sharif.edu](http://dining.sharif.edu/). The bot 
+also has a Telegram Bot Interface so the users can control the bot 
+in a user-friendly environment.
+
+The bot is written in Python combined with the CapserJS framework (Javascript).
+The CasperJS framework is a powerful tool which handles the web crawling tasks.
 
 
 ## Setup
