@@ -90,7 +90,7 @@ Now you can run the script:
 
 Run the code on the back ground so it will keep running on the server while you're logged off:
 
-    python sweetcookie.py &
+    python sweetcookie.py > /dev/null &
 
 
 
