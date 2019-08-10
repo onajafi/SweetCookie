@@ -26,7 +26,7 @@ Until one day everything changed...
 
 Introducing **SweetCookie**
 
-![Sweet Cookies Logo](https://raw.githubusercontent.com/onajafi/SweetCookie/master/_images/SweetCookiesLogo.png)
+![Sweet Cookies Logo](https://raw.githubusercontent.com/onajafi/SweetCookie/Release/_images/SweetCookiesLogo.png)
 
 SweetCookie is the name of a _web crawling_ bot which means it has the ability
 to navigate in different websites as a human user and perform the same tasks that 
