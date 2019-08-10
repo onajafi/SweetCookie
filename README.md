@@ -5,10 +5,10 @@ A better way to reserve your meal in [dining.sharif.edu](http://dining.sharif.ed
 In our university (Sharif University of Technology) 
 most students are able to purchase their lunch or dinner 
 with a cheap price from the _Universities Dining Institution_. However, 
-the meal must be purchased 4 days before the time which it is served.
+the meal must be purchased 4 days before the time it is served.
 
 So every time we had to open the browser and reach to [dining.sharif.edu](http://dining.sharif.edu/), 
-login to our own dining account (Entering our username and password), 
+login to our own dining account (Entering username and password), 
 navigate to the reservation section and click on every meal we wanted for a specific day.
 
 This comes with a problem, A lot of us used to forget the reservation 
@@ -26,7 +26,7 @@ Until one day everything changed...
 
 Introducing **SweetCookie**
 
-pic
+![Sweet Cookies Logo](https://raw.githubusercontent.com/onajafi/SweetCookie/master/_images/SweetCookiesLogo.png)
 
 SweetCookie is the name of a _web crawling_ bot which means it has the ability
 to navigate in different websites as a human user and perform the same tasks that 
@@ -35,8 +35,12 @@ ability to navigate into [dining.sharif.edu](http://dining.sharif.edu/). The bot
 also has a Telegram Bot Interface so the users can control the bot 
 in a user-friendly environment.
 
-The bot is written in Python combined with the CapserJS framework (Javascript).
+The bot is written in Python combined with the 
+[CapserJS](http://casperjs.org/)
+ framework (Javascript).
 The CasperJS framework is a powerful tool which handles the web crawling tasks.
+
+Try the bot at this address: [t.me/Sweet_Cookie_Bot](t.me/Sweet_Cookie_Bot)
 
 
 ## Setup
