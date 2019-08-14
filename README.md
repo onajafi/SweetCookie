@@ -40,7 +40,7 @@ The bot is written in Python combined with the
  framework (Javascript).
 The CasperJS framework is a powerful tool which handles the web crawling tasks.
 
-Try the bot at this address: [t.me/Sweet_Cookie_Bot](t.me/Sweet_Cookie_Bot)
+Try the bot at this address: [t.me/Sweet_Cookie_Bot](http://t.me/Sweet_Cookie_Bot)
 
 
 ## Setup
