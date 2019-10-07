@@ -217,7 +217,7 @@ def TUESDAY_ALARM():
             for tmpUserID in users.users_book.keys():
                 print "++=",tmpUserID
                 try:
-                    if(True or (tmpUserID not in users.users_auto_res_days.keys())):# Make sure this guy doesn't have an auto_res
+                    if(tmpUserID not in users.users_auto_res_days.keys()):# Make sure this guy doesn't have an auto_res
                         if(users.users_book[tmpUserID]["user"] != None and users.users_book[tmpUserID]["pass"] != None): # If there was some password to get in
                             bot.send_message(tmpUserID,"وقت رزرو شده...",reply_markup = MSGs.reserve_time_markup)
                             counter += 1
@@ -227,14 +227,14 @@ def TUESDAY_ALARM():
                     pass
 
             bot.send_message(feedBack_target_chat,"Number of users: " + str(counter+auto_res_count))
-            # bot.send_message(feedBack_target_chat, "Number of auto_res: " + str(auto_res_count))
-            # bot.send_message(feedBack_target_chat, "lunching the AUTO_RESERVE...")
-            # AUTO_RESERVE_TRIG()
-            # bot.send_message(feedBack_target_chat, "finished AUTO_RESERVE :)")
+            bot.send_message(feedBack_target_chat, "Number of auto_res: " + str(auto_res_count))
+            bot.send_message(feedBack_target_chat, "lunching the AUTO_RESERVE...")
+            AUTO_RESERVE_TRIG()
+            bot.send_message(feedBack_target_chat, "finished AUTO_RESERVE :)")
         except:
             pass
 
-MAX_AUTO_RES_THREAD_NUM = 5
+MAX_AUTO_RES_THREAD_NUM = 3
 #Do the auto reserve for all of those who have setup the auto_res
 def AUTO_RESERVE_TRIG():
     global MAX_AUTO_RES_THREAD_NUM
