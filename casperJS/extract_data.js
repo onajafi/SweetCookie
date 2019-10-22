@@ -262,8 +262,8 @@ casper.then(function() {
 .then(function(){
     this.echo(parsed_input_JSON["pass"])
     this.echo(parsed_input_JSON["user"])
-    this.echo(this.sendKeys('input#loginform-username', parsed_input_JSON["user"]));
-    this.echo(this.sendKeys('input#loginform-password', parsed_input_JSON["pass"]));
+    this.echo(this.sendKeys('input#student_student_identifier', parsed_input_JSON["user"]));
+    this.echo(this.sendKeys('input#student_password', parsed_input_JSON["pass"]));
     this.echo(this.getHTML('[class="btn btn-default btn-block"]'));
   }).thenClick('[class="btn btn-default btn-block"]')
   .thenOpen("http://dining.sharif.edu/admin/")
