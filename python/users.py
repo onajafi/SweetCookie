@@ -1163,14 +1163,18 @@ def order_meal_next_week(userID,PLCnum):
             return MSGs.your_password_is_wrong
 
         if(float(temp_data["Balance"]) < -15):
-            tmp_MSG = "حاجییییییی(یا خانم محترم)، اوضاع اعتبار حسابت خیلی خرابه:"
+            tmp_MSG = "میزان اعتبار حساب کمتر از منفی ۱۵.۰۰۰ تومان هست."
             tmp_MSG += '\n'
-            tmp_MSG += "میزان اعتبار:"
+            tmp_MSG += 'برای ثبت سفارش اعتبارتان را افزایش دهید.'
+            tmp_MSG += '\n'
+            tmp_MSG += "میزان فعلی اعتبار:"
             tmp_MSG += '\n'
             tmp_MSG += str(temp_data["Balance"])
             bot.send_message(userID,tmp_MSG)
-            tmp_MSG = "ممکن هست در فرآیند سفارش بعضی از وعده‌ها گرفته نشه."
-            bot.send_message(userID, tmp_MSG)
+            # tmp_MSG = "ممکن هست در فرآیند سفارش بعضی از وعده‌ها گرفته نشه."
+            # bot.send_message(userID, tmp_MSG)
+            users_book[userID]["state"] = None
+            return
 
         user_meal_menu[userID] = temp_data["COMPLETE_TABLE"]
         users_book[userID]["state"] = 0
