@@ -11,7 +11,7 @@ var parsed_input_JSON = JSON.parse(file_input);
 
 var output_for_JSON = {};
 
-casper.start('http://dining.sharif.edu/admin/payment/payment/charge');
+casper.start('https://dining.sharif.ir/admin/payment/payment/charge');
 
 function extract_json_file(){
     var output_filename = 'output_INC_'+parsed_input_JSON.chat_id + '.json';//GFC Get Forgotten Code
@@ -38,7 +38,7 @@ casper.then(function() {
     this.echo('STEP 1: Logging in...');
 })
 .thenClick('[class="btn btn-default btn-block"]')
-.thenOpen("http://dining.sharif.edu/admin/payment/payment/charge")
+.thenOpen("https://dining.sharif.ir/admin/payment/payment/charge")
 .then(function(){
     if(this.exists('#amount-combo')) {
         // this.echo(this.getHTML('select#foodforgottencodesform-self_id'));

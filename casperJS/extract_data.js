@@ -21,7 +21,7 @@ var name_regex = /[\u0600-\u06FF ]*/
 // casper.echo("+++++++++");
 var output_for_JSON = {};
 
-casper.start('http://dining.sharif.edu/login');
+casper.start('https://dining.sharif.ir/login');
 
 //NEW
 function give_ALL_THE_data_in_row(ref,row_num){
@@ -249,7 +249,8 @@ function extract_json_file(){
 casper.then(function() {
     var title = this.getTitle();
     this.echo('First Page: ' + title);
-    if(title.search(/سامانه تغذیه/) != -1){
+
+    if(title.search(/میز خدمات الکترونیکی/) != -1){
         output_for_JSON["ENTRY_STATE"] = "GOOD";
     }
     else{
@@ -264,25 +265,28 @@ casper.then(function() {
     this.echo(parsed_input_JSON["user"])
     this.echo(this.sendKeys('input#student_student_identifier', parsed_input_JSON["user"]));
     this.echo(this.sendKeys('input#student_password', parsed_input_JSON["pass"]));
-    this.echo(this.getHTML('[class="btn btn-default btn-block"]'));
-  }).thenClick('[class="btn btn-default btn-block"]')
-  .thenOpen("http://dining.sharif.edu/admin/")
+    this.echo(this.getHTML('.btn'));
+  }).thenClick('.btn')
+  .thenOpen("https://dining.sharif.ir/admin/")
   .then(function(){
     // scrape something else
     this.echo(this.getTitle());
   })
-  .thenOpen("http://dining.sharif.edu/admin/food/food-reserve/reserve")
+  .thenOpen("https://dining.sharif.ir/admin/food/food-reserve/reserve")
   .then(function(){
     // scrape something else
     this.echo(this.getTitle());
     if(this.exists('.navigation-link:nth-child(1)')) {
         this.echo(this.getHTML('.navigation-link:nth-child(1)'));
         output_for_JSON["PASSWORD_STATE"] = "CORRECT";
+		this.echo("We're in");
     }else{
         output_for_JSON["PASSWORD_STATE"] = "WRONG";
+		this.echo("NOT in");
         extract_json_file();
         this.exit();
     }
+	//this.capture('navigation.png');
   })
     .then(function(){
     this.wait(4000, function(){this.echo('Waiting finished')});

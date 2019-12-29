@@ -116,7 +116,7 @@ function give_ALL_THE_data_in_row(ref,row_num){
 
 var output_for_JSON = {};
 
-casper.start('http://dining.sharif.edu/login');
+casper.start('https://dining.sharif.ir/login');
 
 
 
@@ -128,7 +128,7 @@ function extract_json_file(){
 casper.then(function() {
     var title = this.getTitle();
     this.echo('First Page: ' + title);
-    if(title.search(/سامانه تغذیه/) != -1){
+    if(title.search(/میز خدمات الکترونیکی/) != -1){
         output_for_JSON["ENTRY_STATE"] = "GOOD";
     }
     else{
@@ -142,16 +142,16 @@ casper.then(function() {
     // Logging in
     this.echo(parsed_input_JSON["pass"])
     this.echo(parsed_input_JSON["user"])
-    this.echo(this.sendKeys('input#loginform-username', parsed_input_JSON["user"]));
-    this.echo(this.sendKeys('input#loginform-password', parsed_input_JSON["pass"]));
-    this.echo(this.getHTML('[class="btn btn-default btn-block"]'));
-  }).thenClick('[class="btn btn-default btn-block"]')
-  .thenOpen("http://dining.sharif.edu/admin/food/forgotten-code/forgotten-code")
+    this.echo(this.sendKeys('input#student_student_identifier', parsed_input_JSON["user"]));
+    this.echo(this.sendKeys('input#student_password', parsed_input_JSON["pass"]));
+    this.echo(this.getHTML('.btn'));
+  }).thenClick('.btn')
+  .thenOpen("https://dining.sharif.ir/admin/food/forgotten-code/forgotten-code")
   .then(function(){
     // scrape something else
     this.echo(this.getTitle());
   })
-  .thenOpen("http://dining.sharif.edu/admin/food/forgotten-code/forgotten-code")
+  .thenOpen("https://dining.sharif.ir/admin/food/forgotten-code/forgotten-code")
   .then(function(){
     if(this.exists('div.forgotten-code-update > div.page-title')) {
         // this.echo(this.getHTML('select#foodforgottencodesform-self_id'));
@@ -239,33 +239,6 @@ casper.then(function() {
       this.echo(forgotten_code);
       output_for_JSON["FCode"] = forgotten_code;
   })
-    //Now lets get the meal name (ISSUE #1)
-  // .thenOpen("http://dining.sharif.edu/admin/food/food-reserve/reserve")
-  //   .then(function(){
-  //   this.wait(3000, function(){this.echo('Waiting finished')});
-  //   })
-  //   .then(function(){
-  //       this.evaluate(function(row_value) {
-  //           var form = document.querySelector('select#foodreservesdefineform-self_id');
-  //           form.selectedIndex = row_value;
-  //           $(form).val(row_value).change();
-  //
-  //       },parsed_input_JSON["PLCnum"]);
-  //
-  //
-  //   })
-  //   .then(function(){
-  //   this.wait(3000, function(){this.echo('Waiting finished')});
-  //   })
-  //   .then(function(){
-  //       temp_row_data = give_ALL_THE_data_in_row(this,parsed_input_JSON["serve_day"]);
-  //       if(parsed_input_JSON["meal_type"] == "lunch") {
-  //           parsed_input_JSON["meal_name"] = temp_row_data["lunch_arr"]["meal_name"]
-  //       } else {
-  //           parsed_input_JSON["meal_name"] = temp_row_data["lunch_arr"]["meal_name"]
-  //       }
-  //
-  //   })
   .then(function(){
     this.capture('navigation.png');
 
