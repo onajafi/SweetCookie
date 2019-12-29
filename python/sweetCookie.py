@@ -217,9 +217,9 @@ def TUESDAY_ALARM():
             for tmpUserID in users.users_book.keys():
                 print "++=",tmpUserID
                 try:
-                    if(True or tmpUserID not in users.users_auto_res_days.keys()):# Make sure this guy doesn't have an auto_res
+                    if(tmpUserID not in users.users_auto_res_days.keys()):# Make sure this guy doesn't have an auto_res
                         if(users.users_book[tmpUserID]["user"] != None and users.users_book[tmpUserID]["pass"] != None): # If there was some password to get in
-                            bot.send_message(tmpUserID,"وقت رزرو شده... (بدلیل تغییر در ساختار سایت تغذیه، در حال حاضر امکانات بات قابل استفاده نیست)")#,reply_markup = MSGs.reserve_time_markup)
+                            bot.send_message(tmpUserID,"وقت رزرو شده...",reply_markup = MSGs.reserve_time_markup)
                             counter += 1
                     else:
                         auto_res_count += 1
