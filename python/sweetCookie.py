@@ -155,6 +155,11 @@ def COMM_cancel(message):
 
 @bot.message_handler(content_types=['text'])
 def text_MSG(message):
+    if users.users_book[message.from_user.id]["state"] == "broadcast_waiting_message":
+        print "ITS A simple text message to send"
+        print message.json[u'message_id']
+        commercial.broadcast_POST(message)
+        return
     response = users.process_user_MSG(message.chat.id,message.text,message)
     if response is not None:
         bot.send_message(message.chat.id,response)
